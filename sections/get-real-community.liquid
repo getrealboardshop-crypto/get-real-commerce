@@ -1,0 +1,994 @@
+{% comment %}
+  GET REAL — THE REAL ONES v1.1
+
+  CHANGES
+  - Shopify videos play automatically on desktop hover
+  - Videos pause and reset when hover ends
+  - Tiles lift and enlarge slightly on hover
+  - Videos remain muted and looped
+  - Mobile remains swipeable and tap-based
+{% endcomment %}
+
+<section
+  id="GRCommunity-{{ section.id }}"
+  class="gr-community"
+  data-gr-community
+>
+  <div class="gr-community__inner page-width">
+    <div class="gr-community__header">
+      <div class="gr-community__heading-wrap">
+        {% if section.settings.heading != blank %}
+          <h2 class="gr-community__heading">
+            {{ section.settings.heading | escape }}
+          </h2>
+        {% endif %}
+
+        {% if section.settings.description != blank %}
+          <p class="gr-community__description">
+            {{ section.settings.description | escape }}
+          </p>
+        {% endif %}
+      </div>
+
+      {% if section.settings.top_link_label != blank
+        and section.settings.top_link != blank
+      %}
+        <a
+          class="gr-community__top-link"
+          href="{{ section.settings.top_link }}"
+          target="_blank"
+          rel="noopener"
+        >
+          {{ section.settings.top_link_label | escape }}
+          <span aria-hidden="true">→</span>
+        </a>
+      {% endif %}
+    </div>
+
+    <div class="gr-community__grid">
+      {% for block in section.blocks %}
+        <a
+          class="gr-community-card{% if forloop.index == 3 %} gr-community-card--featured{% endif %}{% if block.settings.media_type == 'video' %} gr-community-card--video{% endif %}"
+          {% if block.settings.link != blank %}
+            href="{{ block.settings.link }}"
+            target="_blank"
+            rel="noopener"
+          {% else %}
+            role="link"
+            aria-disabled="true"
+          {% endif %}
+          aria-label="{{ block.settings.hover_label | default: block.settings.label | escape }}"
+          {{ block.shopify_attributes }}
+        >
+          <div class="gr-community-card__media">
+            {% if block.settings.media_type == 'video'
+              and block.settings.video != blank
+            %}
+              {{
+                block.settings.video
+                | video_tag:
+                  class: 'gr-community-card__video',
+                  autoplay: false,
+                  loop: true,
+                  muted: true,
+                  controls: false,
+                  playsinline: true,
+                  preload: 'metadata'
+              }}
+
+            {% elsif block.settings.image != blank %}
+              {{
+                block.settings.image
+                | image_url: width: 1400
+                | image_tag:
+                  class: 'gr-community-card__image',
+                  widths: '320, 480, 640, 800, 1000, 1200, 1400',
+                  sizes: '(min-width: 990px) 22vw, 82vw',
+                  loading: 'lazy',
+                  alt: block.settings.image.alt
+              }}
+
+            {% else %}
+              {{ 'lifestyle-1' | placeholder_svg_tag: 'gr-community-card__placeholder' }}
+            {% endif %}
+          </div>
+
+          <div class="gr-community-card__overlay"></div>
+
+          {% if block.settings.media_type == 'video' %}
+            <span class="gr-community-card__play" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"></path>
+              </svg>
+            </span>
+          {% endif %}
+
+          <div class="gr-community-card__content">
+            {% if block.settings.label != blank %}
+              <span class="gr-community-card__label">
+                {{ block.settings.label | escape }}
+              </span>
+            {% endif %}
+
+            {% if block.settings.hover_label != blank %}
+              <span class="gr-community-card__hover-label">
+                {{ block.settings.hover_label | escape }}
+                <span aria-hidden="true">→</span>
+              </span>
+            {% endif %}
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+
+    <div class="gr-community__footer">
+      {% if section.settings.follow_label != blank
+        and section.settings.follow_link != blank
+      %}
+        <a
+          class="gr-community__follow"
+          href="{{ section.settings.follow_link }}"
+          target="_blank"
+          rel="noopener"
+        >
+          {{ section.settings.follow_label | escape }}
+          <span aria-hidden="true">→</span>
+        </a>
+      {% endif %}
+
+      <nav class="gr-community__socials" aria-label="Get Real social media">
+        {% if section.settings.instagram_link != blank %}
+          <a href="{{ section.settings.instagram_link }}" target="_blank" rel="noopener">
+            Instagram
+          </a>
+        {% endif %}
+
+        {% if section.settings.youtube_link != blank %}
+          <a href="{{ section.settings.youtube_link }}" target="_blank" rel="noopener">
+            YouTube
+          </a>
+        {% endif %}
+
+        {% if section.settings.tiktok_link != blank %}
+          <a href="{{ section.settings.tiktok_link }}" target="_blank" rel="noopener">
+            TikTok
+          </a>
+        {% endif %}
+
+        {% if section.settings.facebook_link != blank %}
+          <a href="{{ section.settings.facebook_link }}" target="_blank" rel="noopener">
+            Facebook
+          </a>
+        {% endif %}
+      </nav>
+    </div>
+  </div>
+</section>
+
+{% style %}
+  #GRCommunity-{{ section.id }} {
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+    background-color: {{ section.settings.background_color }};
+    color: {{ section.settings.text_color }};
+  }
+
+  #GRCommunity-{{ section.id }} .gr-community__heading {
+    font-size: {{ section.settings.heading_size }}px;
+  }
+
+  #GRCommunity-{{ section.id }} .gr-community__description {
+    max-width: {{ section.settings.description_width }}px;
+    font-size: {{ section.settings.description_size }}px;
+    opacity: {{ section.settings.description_opacity | divided_by: 100.0 }};
+  }
+
+  #GRCommunity-{{ section.id }} .gr-community__grid {
+    gap: {{ section.settings.card_gap }}px;
+  }
+
+  #GRCommunity-{{ section.id }} .gr-community-card {
+    height: {{ section.settings.card_height }}px;
+  }
+
+  #GRCommunity-{{ section.id }} .gr-community-card--featured {
+    height: {{ section.settings.featured_card_height }}px;
+  }
+
+  #GRCommunity-{{ section.id }} .gr-community-card__overlay {
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, {{ section.settings.overlay_bottom | divided_by: 100.0 }}),
+      rgba(0, 0, 0, {{ section.settings.overlay_top | divided_by: 100.0 }})
+    );
+  }
+
+  #GRCommunity-{{ section.id }} .gr-community-card__label {
+    font-size: {{ section.settings.label_size }}px;
+  }
+
+  #GRCommunity-{{ section.id }} .gr-community-card:hover {
+    transform:
+      translateY(-{{ section.settings.hover_lift }}px)
+      scale({{ section.settings.card_hover_scale | divided_by: 100.0 }});
+  }
+
+  #GRCommunity-{{ section.id }} .gr-community-card:hover .gr-community-card__image,
+  #GRCommunity-{{ section.id }} .gr-community-card:hover .gr-community-card__video {
+    transform: scale({{ section.settings.hover_zoom | divided_by: 100.0 }});
+  }
+
+  @media screen and (max-width: 749px) {
+    #GRCommunity-{{ section.id }} {
+      padding-top: {{ section.settings.mobile_padding_top }}px;
+      padding-bottom: {{ section.settings.mobile_padding_bottom }}px;
+    }
+
+    #GRCommunity-{{ section.id }} .gr-community__grid {
+      gap: {{ section.settings.mobile_card_gap }}px;
+    }
+
+    #GRCommunity-{{ section.id }} .gr-community-card,
+    #GRCommunity-{{ section.id }} .gr-community-card--featured {
+      height: {{ section.settings.mobile_card_height }}px;
+    }
+  }
+{% endstyle %}
+
+{% stylesheet %}
+  .gr-community {
+    width: 100%;
+  }
+
+  .gr-community__header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 30px;
+    margin-bottom: 30px;
+  }
+
+  .gr-community__heading-wrap {
+    min-width: 0;
+  }
+
+  .gr-community__heading {
+    margin: 0;
+    color: inherit;
+    font-weight: 900;
+    line-height: 0.95;
+    letter-spacing: -0.035em;
+    text-transform: uppercase;
+  }
+
+  .gr-community__description {
+    margin: 15px 0 0;
+    color: inherit;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  .gr-community__top-link,
+  .gr-community__follow {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid currentColor;
+    color: inherit;
+    font-size: 13px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+
+  .gr-community__grid {
+    position: relative;
+    display: grid;
+    grid-template-columns:
+      minmax(0, 1fr)
+      minmax(0, 1fr)
+      minmax(0, 1.25fr)
+      minmax(0, 1fr)
+      minmax(0, 1fr);
+    align-items: center;
+  }
+
+  .gr-community-card {
+    position: relative;
+    z-index: 1;
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    color: #ffffff;
+    background-color: #111111;
+    text-decoration: none;
+    cursor: pointer;
+    transform-origin: center;
+    transition:
+      transform 240ms ease,
+      box-shadow 240ms ease,
+      z-index 0s linear 240ms;
+  }
+
+  .gr-community-card:hover,
+  .gr-community-card:focus-visible {
+    z-index: 8;
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
+    transition:
+      transform 240ms ease,
+      box-shadow 240ms ease,
+      z-index 0s;
+  }
+
+  .gr-community-card__media,
+  .gr-community-card__overlay {
+    position: absolute;
+    inset: 0;
+  }
+
+  .gr-community-card__media {
+    z-index: 0;
+  }
+
+  .gr-community-card__overlay {
+    z-index: 1;
+    pointer-events: none;
+    transition: opacity 220ms ease;
+  }
+
+  .gr-community-card__image,
+  .gr-community-card__video,
+  .gr-community-card__placeholder {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transition:
+      transform 400ms ease,
+      filter 250ms ease;
+  }
+
+  .gr-community-card:hover .gr-community-card__image,
+  .gr-community-card:hover .gr-community-card__video,
+  .gr-community-card:focus-visible .gr-community-card__image,
+  .gr-community-card:focus-visible .gr-community-card__video {
+    filter: brightness(0.88);
+  }
+
+  .gr-community-card--video:hover .gr-community-card__overlay,
+  .gr-community-card--video:focus-visible .gr-community-card__overlay {
+    opacity: 0.72;
+  }
+
+  .gr-community-card__play {
+    position: absolute;
+    z-index: 3;
+    top: 16px;
+    right: 16px;
+    display: flex;
+    width: 38px;
+    height: 38px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    border-radius: 50%;
+    color: #111111;
+    background-color: rgba(255, 255, 255, 0.92);
+    pointer-events: none;
+    transition:
+      opacity 180ms ease,
+      transform 180ms ease;
+  }
+
+  .gr-community-card--video:hover .gr-community-card__play,
+  .gr-community-card--video:focus-visible .gr-community-card__play {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+
+  .gr-community-card__play svg {
+    width: 17px;
+    height: 17px;
+    fill: currentColor;
+  }
+
+  .gr-community-card__content {
+    position: absolute;
+    z-index: 2;
+    right: 18px;
+    bottom: 18px;
+    left: 18px;
+  }
+
+  .gr-community-card__label {
+    display: block;
+    color: inherit;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+  }
+
+  .gr-community-card__hover-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid currentColor;
+    color: inherit;
+    font-size: 12px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: 0.05em;
+    opacity: 0;
+    transform: translateY(8px);
+    text-transform: uppercase;
+    transition:
+      opacity 200ms ease,
+      transform 200ms ease;
+  }
+
+  .gr-community-card:hover .gr-community-card__hover-label,
+  .gr-community-card:focus-visible .gr-community-card__hover-label {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .gr-community__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 30px;
+    margin-top: 30px;
+  }
+
+  .gr-community__socials {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 24px;
+  }
+
+  .gr-community__socials a {
+    color: inherit;
+    font-size: 13px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: opacity 180ms ease;
+  }
+
+  .gr-community__socials a:hover {
+    opacity: 0.6;
+  }
+
+  @media screen and (max-width: 989px) {
+    .gr-community__grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      align-items: stretch;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .gr-community__header {
+      display: block;
+      margin-bottom: 22px;
+    }
+
+    .gr-community__top-link {
+      display: none;
+    }
+
+    .gr-community__description {
+      margin-top: 12px;
+    }
+
+    .gr-community__grid {
+      display: flex;
+      width: calc(100% + 1.5rem);
+      margin-right: -1.5rem;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .gr-community__grid::-webkit-scrollbar {
+      display: none;
+    }
+
+    .gr-community-card,
+    .gr-community-card--featured {
+      flex: 0 0 82%;
+      scroll-snap-align: start;
+    }
+
+    .gr-community-card:hover {
+      transform: none !important;
+      box-shadow: none;
+    }
+
+    .gr-community-card__hover-label {
+      opacity: 1;
+      transform: none;
+    }
+
+    .gr-community__footer {
+      display: block;
+      margin-top: 24px;
+    }
+
+    .gr-community__socials {
+      justify-content: flex-start;
+      gap: 18px;
+      margin-top: 22px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gr-community-card,
+    .gr-community-card__image,
+    .gr-community-card__video,
+    .gr-community-card__hover-label,
+    .gr-community-card__play {
+      transition: none;
+    }
+  }
+{% endstylesheet %}
+
+<script>
+  (() => {
+    const section = document.querySelector('#GRCommunity-{{ section.id }}');
+
+    if (!section || section.dataset.videoHoverReady === 'true') return;
+
+    section.dataset.videoHoverReady = 'true';
+
+    const supportsHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (!supportsHover || reduceMotion) return;
+
+    const videoCards = section.querySelectorAll('.gr-community-card--video');
+
+    videoCards.forEach((card) => {
+      const video = card.querySelector('video');
+
+      if (!video) return;
+
+      video.muted = true;
+      video.loop = true;
+      video.playsInline = true;
+
+      const playVideo = () => {
+        const playPromise = video.play();
+
+        if (playPromise && typeof playPromise.catch === 'function') {
+          playPromise.catch(() => {});
+        }
+      };
+
+      const stopVideo = () => {
+        video.pause();
+
+        try {
+          video.currentTime = 0;
+        } catch (error) {
+          // Some browsers may block resetting before metadata loads.
+        }
+      };
+
+      card.addEventListener('mouseenter', playVideo);
+      card.addEventListener('mouseleave', stopVideo);
+      card.addEventListener('focusin', playVideo);
+      card.addEventListener('focusout', stopVideo);
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "GR real ones",
+  "tag": "section",
+  "class": "section-gr-community",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "max_blocks": 5,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "The real ones."
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Follow the sessions, new drops, events and the people who make Get Real what it is."
+    },
+    {
+      "type": "text",
+      "id": "top_link_label",
+      "label": "Top link wording",
+      "default": "Follow us"
+    },
+    {
+      "type": "url",
+      "id": "top_link",
+      "label": "Top link"
+    },
+    {
+      "type": "text",
+      "id": "follow_label",
+      "label": "Main follow wording",
+      "default": "Follow the session"
+    },
+    {
+      "type": "url",
+      "id": "follow_link",
+      "label": "Main follow link"
+    },
+    {
+      "type": "header",
+      "content": "Social links"
+    },
+    {
+      "type": "url",
+      "id": "instagram_link",
+      "label": "Instagram"
+    },
+    {
+      "type": "url",
+      "id": "youtube_link",
+      "label": "YouTube"
+    },
+    {
+      "type": "url",
+      "id": "tiktok_link",
+      "label": "TikTok"
+    },
+    {
+      "type": "url",
+      "id": "facebook_link",
+      "label": "Facebook"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "card_height",
+      "min": 180,
+      "max": 460,
+      "step": 10,
+      "unit": "px",
+      "label": "Standard tile height",
+      "default": 300
+    },
+    {
+      "type": "range",
+      "id": "featured_card_height",
+      "min": 200,
+      "max": 520,
+      "step": 10,
+      "unit": "px",
+      "label": "Center tile height",
+      "default": 350
+    },
+    {
+      "type": "range",
+      "id": "mobile_card_height",
+      "min": 240,
+      "max": 520,
+      "step": 10,
+      "unit": "px",
+      "label": "Mobile tile height",
+      "default": 380
+    },
+    {
+      "type": "range",
+      "id": "card_gap",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Desktop tile spacing",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "mobile_card_gap",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "label": "Mobile tile spacing",
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Tile hover"
+    },
+    {
+      "type": "range",
+      "id": "card_hover_scale",
+      "min": 100,
+      "max": 108,
+      "step": 1,
+      "unit": "%",
+      "label": "Hover tile enlargement",
+      "default": 103
+    },
+    {
+      "type": "range",
+      "id": "hover_lift",
+      "min": 0,
+      "max": 12,
+      "step": 1,
+      "unit": "px",
+      "label": "Hover tile lift",
+      "default": 5
+    },
+    {
+      "type": "range",
+      "id": "hover_zoom",
+      "min": 100,
+      "max": 110,
+      "step": 1,
+      "unit": "%",
+      "label": "Hover media zoom",
+      "default": 104
+    },
+    {
+      "type": "header",
+      "content": "Tile appearance"
+    },
+    {
+      "type": "range",
+      "id": "overlay_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Bottom image darkness",
+      "default": 70
+    },
+    {
+      "type": "range",
+      "id": "overlay_top",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Top image darkness",
+      "default": 5
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 24,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Heading size",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "description_size",
+      "min": 13,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "label": "Description size",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "description_width",
+      "min": 320,
+      "max": 760,
+      "step": 20,
+      "unit": "px",
+      "label": "Description width",
+      "default": 600
+    },
+    {
+      "type": "range",
+      "id": "description_opacity",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Description brightness",
+      "default": 75
+    },
+    {
+      "type": "range",
+      "id": "label_size",
+      "min": 16,
+      "max": 34,
+      "step": 2,
+      "unit": "px",
+      "label": "Tile label size",
+      "default": 22
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "default": "#111111"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 20,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Desktop top padding",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 20,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Desktop bottom padding",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_top",
+      "min": 16,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "label": "Mobile top padding",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_bottom",
+      "min": 16,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "label": "Mobile bottom padding",
+      "default": 40
+    }
+  ],
+  "blocks": [
+    {
+      "type": "social_post",
+      "name": "Social tile",
+      "settings": [
+        {
+          "type": "select",
+          "id": "media_type",
+          "label": "Media type",
+          "default": "image",
+          "options": [
+            {
+              "value": "image",
+              "label": "Image"
+            },
+            {
+              "value": "video",
+              "label": "Shopify video"
+            }
+          ]
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "video",
+          "id": "video",
+          "label": "Shopify-hosted video"
+        },
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Tile label",
+          "default": "Shop life"
+        },
+        {
+          "type": "text",
+          "id": "hover_label",
+          "label": "Hover wording",
+          "default": "View post"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Post link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "GR real ones",
+      "blocks": [
+        {
+          "type": "social_post",
+          "settings": {
+            "label": "Shop life",
+            "hover_label": "View post"
+          }
+        },
+        {
+          "type": "social_post",
+          "settings": {
+            "label": "New drop",
+            "hover_label": "Watch reel",
+            "media_type": "video"
+          }
+        },
+        {
+          "type": "social_post",
+          "settings": {
+            "label": "Latest session",
+            "hover_label": "Watch video",
+            "media_type": "video"
+          }
+        },
+        {
+          "type": "social_post",
+          "settings": {
+            "label": "Go skate day",
+            "hover_label": "View post"
+          }
+        },
+        {
+          "type": "social_post",
+          "settings": {
+            "label": "The real ones",
+            "hover_label": "Watch reel",
+            "media_type": "video"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

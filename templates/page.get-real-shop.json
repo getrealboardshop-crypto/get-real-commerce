@@ -1,0 +1,11 @@
+{
+  "sections": {
+    "main": {
+      "type": "get-real-shop-hub",
+      "settings": {}
+    }
+  },
+  "order": [
+    "main"
+  ]
+}

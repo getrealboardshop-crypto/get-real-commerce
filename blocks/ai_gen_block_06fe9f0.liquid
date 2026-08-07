@@ -1,0 +1,543 @@
+{% doc %}
+  @prompt
+    I want to build out what is included in the dj lessons such as DJ Listening Lab is a hands-on DJ program focused on learning how to mix vinyl records by ear in a relaxed and supportive environment.
+    
+    Classes are designed for beginners and developing DJs who want to build real skills including:
+    
+    • Beat-matching by ear
+    • Clean transitions and longer blends
+    • Understanding DJ equipment and signal flow
+    • Developing musical taste and record selection
+    • Practicing with intention and confidence
+    
+    Each session is 2 hours and takes place inside Get Real Board Shop.
+    
+    Class Details
+    • Weekday Evenings: 6:00 PM – 8:00 PM
+    • Beginner-friendly — no experience required
+    • $60 per session
+    • Optional follow-up lessons available
+    Practice Time
+    Students can book additional turntable practice sessions during shop hours.
+    • $20 per hour
+    • Great for building confidence between lessons
+    • Instructor support available when in-store
+    Who This Is For
+    • Complete beginners curious about DJing
+    • Music lovers who want to understand vinyl
+    • DJs looking to improve mixing by ear
+    • Youth and adults interested in creative skill-building
+    Get Started
+    To schedule your first session or ask a question, contact:
+    
+    Theron Sunderland
+    DJ Listening Lab Instructor
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-dj-lessons-{{ ai_gen_id }} {
+    display: block;
+    width: {{ block.settings.desktop_width_percent }}%;
+    max-width: 100%;
+    padding: 40px;
+    background-color: {{ block.settings.background_color }};
+    color: {{ block.settings.text_color }};
+    border-radius: {{ block.settings.border_radius }}px;
+  }
+
+  .ai-dj-lessons-header-{{ ai_gen_id }} {
+    margin-bottom: 32px;
+  }
+
+  .ai-dj-lessons-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.title_size }}px;
+    margin: 0 0 16px 0;
+    color: {{ block.settings.text_color }};
+  }
+
+  .ai-dj-lessons-intro-{{ ai_gen_id }} {
+    font-size: {{ block.settings.body_size }}px;
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+
+  .ai-dj-lessons-section-{{ ai_gen_id }} {
+    margin-bottom: 32px;
+  }
+
+  .ai-dj-lessons-section-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.section_title_size }}px;
+    margin: 0 0 16px 0;
+    color: {{ block.settings.accent_color }};
+  }
+
+  .ai-dj-lessons-list-{{ ai_gen_id }} {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 16px 0;
+  }
+
+  .ai-dj-lessons-list-{{ ai_gen_id }} li {
+    font-size: {{ block.settings.body_size }}px;
+    line-height: 1.6;
+    padding-left: 24px;
+    position: relative;
+    margin-bottom: 8px;
+  }
+
+  .ai-dj-lessons-list-{{ ai_gen_id }} li:before {
+    content: "•";
+    position: absolute;
+    left: 8px;
+    color: {{ block.settings.accent_color }};
+    font-weight: bold;
+  }
+
+  .ai-dj-lessons-details-grid-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+  }
+
+  .ai-dj-lessons-detail-card-{{ ai_gen_id }} {
+    padding: 20px;
+    background-color: {{ block.settings.card_background_color }};
+    border-radius: {{ block.settings.card_border_radius }}px;
+    border: 1px solid {{ block.settings.card_border_color }};
+  }
+
+  .ai-dj-lessons-detail-label-{{ ai_gen_id }} {
+    font-size: {{ block.settings.label_size }}px;
+    font-weight: 600;
+    color: {{ block.settings.accent_color }};
+    margin-bottom: 8px;
+  }
+
+  .ai-dj-lessons-detail-value-{{ ai_gen_id }} {
+    font-size: {{ block.settings.body_size }}px;
+    line-height: 1.6;
+  }
+
+  .ai-dj-lessons-cta-{{ ai_gen_id }} {
+    margin-top: 32px;
+    padding-top: 32px;
+    border-top: 1px solid {{ block.settings.card_border_color }};
+  }
+
+  .ai-dj-lessons-cta-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.section_title_size }}px;
+    margin: 0 0 16px 0;
+    color: {{ block.settings.accent_color }};
+  }
+
+  .ai-dj-lessons-cta-text-{{ ai_gen_id }} {
+    font-size: {{ block.settings.body_size }}px;
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+
+  .ai-dj-lessons-instructor-{{ ai_gen_id }} {
+    font-size: {{ block.settings.body_size }}px;
+    font-weight: 600;
+    color: {{ block.settings.text_color }};
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-dj-lessons-{{ ai_gen_id }} {
+      padding: 24px;
+      width: 100%;
+    }
+
+    .ai-dj-lessons-title-{{ ai_gen_id }} {
+      font-size: calc({{ block.settings.title_size }}px * 0.8);
+    }
+
+    .ai-dj-lessons-section-title-{{ ai_gen_id }} {
+      font-size: calc({{ block.settings.section_title_size }}px * 0.9);
+    }
+
+    .ai-dj-lessons-details-grid-{{ ai_gen_id }} {
+      grid-template-columns: 1fr;
+    }
+  }
+{% endstyle %}
+
+<dj-lessons-{{ ai_gen_id }} class="ai-dj-lessons-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-dj-lessons-header-{{ ai_gen_id }}">
+    <h2 class="ai-dj-lessons-title-{{ ai_gen_id }}">{{ block.settings.title }}</h2>
+    <div class="ai-dj-lessons-intro-{{ ai_gen_id }}">
+      {{ block.settings.intro_text }}
+    </div>
+  </div>
+
+  {% if block.settings.show_skills_section %}
+    <div class="ai-dj-lessons-section-{{ ai_gen_id }}">
+      <h3 class="ai-dj-lessons-section-title-{{ ai_gen_id }}">{{ block.settings.skills_title }}</h3>
+      <ul class="ai-dj-lessons-list-{{ ai_gen_id }}">
+        {% if block.settings.skill_1 != blank %}
+          <li>{{ block.settings.skill_1 }}</li>
+        {% endif %}
+        {% if block.settings.skill_2 != blank %}
+          <li>{{ block.settings.skill_2 }}</li>
+        {% endif %}
+        {% if block.settings.skill_3 != blank %}
+          <li>{{ block.settings.skill_3 }}</li>
+        {% endif %}
+        {% if block.settings.skill_4 != blank %}
+          <li>{{ block.settings.skill_4 }}</li>
+        {% endif %}
+        {% if block.settings.skill_5 != blank %}
+          <li>{{ block.settings.skill_5 }}</li>
+        {% endif %}
+      </ul>
+      <div class="ai-dj-lessons-intro-{{ ai_gen_id }}">
+        {{ block.settings.session_info }}
+      </div>
+    </div>
+  {% endif %}
+
+  <div class="ai-dj-lessons-details-grid-{{ ai_gen_id }}">
+    {% if block.settings.show_class_details %}
+      <div class="ai-dj-lessons-detail-card-{{ ai_gen_id }}">
+        <div class="ai-dj-lessons-detail-label-{{ ai_gen_id }}">{{ block.settings.class_details_title }}</div>
+        <div class="ai-dj-lessons-detail-value-{{ ai_gen_id }}">
+          {{ block.settings.class_details_content }}
+        </div>
+      </div>
+    {% endif %}
+
+    {% if block.settings.show_practice_time %}
+      <div class="ai-dj-lessons-detail-card-{{ ai_gen_id }}">
+        <div class="ai-dj-lessons-detail-label-{{ ai_gen_id }}">{{ block.settings.practice_title }}</div>
+        <div class="ai-dj-lessons-detail-value-{{ ai_gen_id }}">
+          {{ block.settings.practice_content }}
+        </div>
+      </div>
+    {% endif %}
+
+    {% if block.settings.show_who_for %}
+      <div class="ai-dj-lessons-detail-card-{{ ai_gen_id }}">
+        <div class="ai-dj-lessons-detail-label-{{ ai_gen_id }}">{{ block.settings.who_for_title }}</div>
+        <div class="ai-dj-lessons-detail-value-{{ ai_gen_id }}">
+          {{ block.settings.who_for_content }}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  {% if block.settings.show_cta %}
+    <div class="ai-dj-lessons-cta-{{ ai_gen_id }}">
+      <h3 class="ai-dj-lessons-cta-title-{{ ai_gen_id }}">{{ block.settings.cta_title }}</h3>
+      <div class="ai-dj-lessons-cta-text-{{ ai_gen_id }}">
+        {{ block.settings.cta_text }}
+      </div>
+      <div class="ai-dj-lessons-instructor-{{ ai_gen_id }}">
+        {{ block.settings.instructor_name }}
+      </div>
+    </div>
+  {% endif %}
+</dj-lessons-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class DjLessons{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+      }
+
+      connectedCallback() {
+      }
+    }
+
+    customElements.define('dj-lessons-{{ ai_gen_id }}', DjLessons{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "DJ lessons info",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Main content"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "DJ Listening Lab"
+    },
+    {
+      "type": "richtext",
+      "id": "intro_text",
+      "label": "Introduction",
+      "default": "<p>DJ Listening Lab is a hands-on DJ program focused on learning how to mix vinyl records by ear in a relaxed and supportive environment.</p>"
+    },
+    {
+      "type": "header",
+      "content": "Skills section"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_skills_section",
+      "label": "Show skills section",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "skills_title",
+      "label": "Skills title",
+      "default": "Classes are designed for beginners and developing DJs who want to build real skills including:"
+    },
+    {
+      "type": "text",
+      "id": "skill_1",
+      "label": "Skill 1",
+      "default": "Beat-matching by ear"
+    },
+    {
+      "type": "text",
+      "id": "skill_2",
+      "label": "Skill 2",
+      "default": "Clean transitions and longer blends"
+    },
+    {
+      "type": "text",
+      "id": "skill_3",
+      "label": "Skill 3",
+      "default": "Understanding DJ equipment and signal flow"
+    },
+    {
+      "type": "text",
+      "id": "skill_4",
+      "label": "Skill 4",
+      "default": "Developing musical taste and record selection"
+    },
+    {
+      "type": "text",
+      "id": "skill_5",
+      "label": "Skill 5",
+      "default": "Practicing with intention and confidence"
+    },
+    {
+      "type": "richtext",
+      "id": "session_info",
+      "label": "Session information",
+      "default": "<p>Each session is 2 hours and takes place inside Get Real Board Shop.</p>"
+    },
+    {
+      "type": "header",
+      "content": "Class details"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_class_details",
+      "label": "Show class details",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "class_details_title",
+      "label": "Title",
+      "default": "Class Details"
+    },
+    {
+      "type": "richtext",
+      "id": "class_details_content",
+      "label": "Content",
+      "default": "<p>• Weekday Evenings: 6:00 PM – 8:00 PM<br>• Beginner-friendly — no experience required<br>• $60 per session<br>• Optional follow-up lessons available</p>"
+    },
+    {
+      "type": "header",
+      "content": "Practice time"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_practice_time",
+      "label": "Show practice time",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "practice_title",
+      "label": "Title",
+      "default": "Practice Time"
+    },
+    {
+      "type": "richtext",
+      "id": "practice_content",
+      "label": "Content",
+      "default": "<p>Students can book additional turntable practice sessions during shop hours.<br>• $20 per hour<br>• Great for building confidence between lessons<br>• Instructor support available when in-store</p>"
+    },
+    {
+      "type": "header",
+      "content": "Who this is for"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_who_for",
+      "label": "Show who this is for",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "who_for_title",
+      "label": "Title",
+      "default": "Who This Is For"
+    },
+    {
+      "type": "richtext",
+      "id": "who_for_content",
+      "label": "Content",
+      "default": "<p>• Complete beginners curious about DJing<br>• Music lovers who want to understand vinyl<br>• DJs looking to improve mixing by ear<br>• Youth and adults interested in creative skill-building</p>"
+    },
+    {
+      "type": "header",
+      "content": "Call to action"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_cta",
+      "label": "Show call to action",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "cta_title",
+      "label": "Title",
+      "default": "Get Started"
+    },
+    {
+      "type": "richtext",
+      "id": "cta_text",
+      "label": "Text",
+      "default": "<p>To schedule your first session or ask a question, contact:</p>"
+    },
+    {
+      "type": "text",
+      "id": "instructor_name",
+      "label": "Instructor name",
+      "default": "Theron Sunderland - DJ Listening Lab Instructor"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "desktop_width_percent",
+      "label": "Desktop width",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "label": "Border radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "card_border_radius",
+      "label": "Card border radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "label": "Title size",
+      "min": 20,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "section_title_size",
+      "label": "Section title size",
+      "min": 16,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "label_size",
+      "label": "Label size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "body_size",
+      "label": "Body text size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "default": "#121212"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent",
+      "default": "#121212"
+    },
+    {
+      "type": "color",
+      "id": "card_background_color",
+      "label": "Card background",
+      "default": "#f3f3f3"
+    },
+    {
+      "type": "color",
+      "id": "card_border_color",
+      "label": "Card border",
+      "default": "#e0e0e0"
+    }
+  ],
+  "presets": [
+    {
+      "name": "DJ lessons info"
+    }
+  ]
+}
+{% endschema %}

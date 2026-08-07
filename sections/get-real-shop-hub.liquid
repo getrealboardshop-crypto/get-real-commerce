@@ -1,0 +1,1200 @@
+{% comment %}
+  GET REAL SHOP HUB v1.2
+
+  - Shop by Category at the top
+  - Four equal shopping-path cards
+  - Large ghosted icons in the upper-right
+  - Icons stay behind the text
+  - Entire linked cards are clickable
+  - Ask a Real Skater callout at the bottom
+{% endcomment %}
+
+<section
+  id="GRShopHub-{{ section.id }}"
+  class="gr-shop-hub"
+>
+  <div class="gr-shop-hub__inner page-width">
+
+    <header class="gr-shop-hub__header">
+      {% if section.settings.eyebrow != blank %}
+        <p class="gr-shop-hub__eyebrow">
+          {{ section.settings.eyebrow | escape }}
+        </p>
+      {% endif %}
+
+      {% if section.settings.heading != blank %}
+        <h1 class="gr-shop-hub__heading">
+          {{ section.settings.heading | escape }}
+        </h1>
+      {% endif %}
+
+      {% if section.settings.description != blank %}
+        <p class="gr-shop-hub__description">
+          {{ section.settings.description | escape }}
+        </p>
+      {% endif %}
+    </header>
+
+    <div class="gr-shop-hub__quick">
+      <div class="gr-shop-hub__quick-header">
+        {% if section.settings.quick_heading != blank %}
+          <h2 class="gr-shop-hub__quick-heading">
+            {{ section.settings.quick_heading | escape }}
+          </h2>
+        {% endif %}
+
+        {% if section.settings.quick_description != blank %}
+          <p class="gr-shop-hub__quick-description">
+            {{ section.settings.quick_description | escape }}
+          </p>
+        {% endif %}
+      </div>
+
+      <nav class="gr-shop-hub__chips" aria-label="Shop categories">
+        {% for block in section.blocks %}
+          {% if block.type == 'quick_link' %}
+            {% if block.settings.link != blank %}
+              <a
+                class="gr-shop-hub__chip"
+                href="{{ block.settings.link }}"
+                {{ block.shopify_attributes }}
+              >
+                {{ block.settings.label | escape }}
+                <span aria-hidden="true">→</span>
+              </a>
+            {% else %}
+              <span
+                class="gr-shop-hub__chip gr-shop-hub__chip--disabled"
+                aria-disabled="true"
+                {{ block.shopify_attributes }}
+              >
+                {{ block.settings.label | escape }}
+                <span aria-hidden="true">→</span>
+              </span>
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+      </nav>
+    </div>
+
+    <div class="gr-shop-hub__intent-grid">
+      {% for block in section.blocks %}
+        {% if block.type == 'intent' %}
+
+          {% if block.settings.link != blank %}
+            <a
+              class="gr-shop-intent-card{% if block.settings.featured %} gr-shop-intent-card--featured{% endif %}"
+              href="{{ block.settings.link }}"
+              {{ block.shopify_attributes }}
+            >
+          {% else %}
+            <div
+              class="gr-shop-intent-card gr-shop-intent-card--disabled{% if block.settings.featured %} gr-shop-intent-card--featured{% endif %}"
+              aria-disabled="true"
+              {{ block.shopify_attributes }}
+            >
+          {% endif %}
+
+            <div class="gr-shop-intent-card__media{% if block.settings.image == blank %} gr-shop-intent-card__media--icon{% endif %}">
+              {% if block.settings.image != blank %}
+                {{
+                  block.settings.image
+                  | image_url: width: 1400
+                  | image_tag:
+                    class: 'gr-shop-intent-card__image',
+                    widths: '400, 600, 800, 1000, 1200, 1400',
+                    sizes: '(min-width: 990px) 50vw, 100vw',
+                    loading: 'lazy',
+                    alt: block.settings.image.alt
+                }}
+              {% else %}
+                <div class="gr-shop-intent-card__icon" aria-hidden="true">
+                  {% case block.settings.icon %}
+                    {% when 'board' %}
+                      <svg viewBox="0 0 64 64">
+                        <path d="M11 24h42c4 0 7 3 7 7s-3 7-7 7H11c-4 0-7-3-7-7s3-7 7-7Z"/>
+                        <circle cx="18" cy="45" r="4"/>
+                        <circle cx="46" cy="45" r="4"/>
+                        <path d="M18 38v3M46 38v3"/>
+                      </svg>
+
+                    {% when 'part' %}
+                      <svg viewBox="0 0 64 64">
+                        <path d="m39 8-7 7 5 5-17 17-5-5-7 7 17 17 7-7-5-5 17-17 5 5 7-7L39 8Z"/>
+                      </svg>
+
+                    {% when 'new' %}
+                      <svg viewBox="0 0 64 64">
+                        <path d="m35 4-6 21H13l13 9-5 26 16-19h16L40 31 51 4 35 25V4Z"/>
+                      </svg>
+
+                    {% when 'gift' %}
+                      <svg viewBox="0 0 64 64">
+                        <path d="M8 27h48v29H8V27Zm-3-12h54v12H5V15Z"/>
+                        <path d="M32 15v41M19 15c-6 0-9-3-9-7 0-3 2-5 6-5 7 0 16 12 16 12H19Zm26 0c6 0 9-3 9-7 0-3-2-5-6-5-7 0-16 12-16 12h13Z"/>
+                      </svg>
+
+                    {% else %}
+                      <svg viewBox="0 0 64 64">
+                        <circle cx="32" cy="32" r="25"/>
+                        <path d="M32 18v28M18 32h28"/>
+                      </svg>
+                  {% endcase %}
+                </div>
+              {% endif %}
+            </div>
+
+            {% if block.settings.image != blank %}
+              <div class="gr-shop-intent-card__overlay"></div>
+            {% endif %}
+
+            <div class="gr-shop-intent-card__content">
+              {% if block.settings.small_label != blank %}
+                <span class="gr-shop-intent-card__small-label">
+                  {{ block.settings.small_label | escape }}
+                </span>
+              {% endif %}
+
+              {% if block.settings.title != blank %}
+                <h2 class="gr-shop-intent-card__title">
+                  {{ block.settings.title | escape }}
+                </h2>
+              {% endif %}
+
+              {% if block.settings.description != blank %}
+                <p class="gr-shop-intent-card__description">
+                  {{ block.settings.description | escape }}
+                </p>
+              {% endif %}
+
+              {% if block.settings.link_label != blank %}
+                <span class="gr-shop-intent-card__link">
+                  {{ block.settings.link_label | escape }}
+                  <span aria-hidden="true">→</span>
+                </span>
+              {% endif %}
+            </div>
+
+          {% if block.settings.link != blank %}
+            </a>
+          {% else %}
+            </div>
+          {% endif %}
+
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    {% if section.settings.help_heading != blank %}
+      <aside class="gr-shop-hub__help">
+        <div class="gr-shop-hub__help-content">
+          {% if section.settings.help_label != blank %}
+            <p class="gr-shop-hub__help-label">
+              {{ section.settings.help_label | escape }}
+            </p>
+          {% endif %}
+
+          <h2 class="gr-shop-hub__help-heading">
+            {{ section.settings.help_heading | escape }}
+          </h2>
+
+          {% if section.settings.help_description != blank %}
+            <p class="gr-shop-hub__help-description">
+              {{ section.settings.help_description | escape }}
+            </p>
+          {% endif %}
+        </div>
+
+        {% if section.settings.help_button != blank %}
+          {% if section.settings.help_link != blank %}
+            <a
+              class="gr-shop-hub__help-button"
+              href="{{ section.settings.help_link }}"
+            >
+              {{ section.settings.help_button | escape }}
+              <span aria-hidden="true">→</span>
+            </a>
+          {% else %}
+            <span
+              class="gr-shop-hub__help-button gr-shop-hub__help-button--disabled"
+              aria-disabled="true"
+            >
+              {{ section.settings.help_button | escape }}
+              <span aria-hidden="true">→</span>
+            </span>
+          {% endif %}
+        {% endif %}
+      </aside>
+    {% endif %}
+
+  </div>
+</section>
+
+{% style %}
+  #GRShopHub-{{ section.id }} {
+    --gr-hub-background: {{ section.settings.background_color }};
+    --gr-hub-text: {{ section.settings.text_color }};
+    --gr-hub-card: {{ section.settings.card_background }};
+    --gr-hub-card-text: {{ section.settings.card_text_color }};
+    --gr-hub-accent: {{ section.settings.accent_color }};
+    --gr-hub-hover: {{ section.settings.card_hover_background }};
+    --gr-hub-border: {{ section.settings.border_color }};
+    --gr-hub-gap: {{ section.settings.card_gap }}px;
+    --gr-hub-radius: {{ section.settings.card_radius }}px;
+    --gr-hub-card-height: {{ section.settings.card_height }}px;
+    --gr-hub-overlay: {{ section.settings.image_darkness | divided_by: 100.0 }};
+
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+    color: var(--gr-hub-text);
+    background: var(--gr-hub-background);
+  }
+
+  #GRShopHub-{{ section.id }} .gr-shop-hub__heading {
+    max-width: {{ section.settings.heading_width }}px;
+    font-size: {{ section.settings.heading_size }}px;
+  }
+
+  #GRShopHub-{{ section.id }} .gr-shop-hub__description {
+    max-width: {{ section.settings.description_width }}px;
+    font-size: {{ section.settings.description_size }}px;
+  }
+
+  #GRShopHub-{{ section.id }} .gr-shop-intent-card__title {
+    font-size: {{ section.settings.card_title_size }}px;
+  }
+
+  @media screen and (max-width: 749px) {
+    #GRShopHub-{{ section.id }} {
+      --gr-hub-card-height: {{ section.settings.mobile_card_height }}px;
+
+      padding-top: {{ section.settings.mobile_padding_top }}px;
+      padding-bottom: {{ section.settings.mobile_padding_bottom }}px;
+    }
+
+    #GRShopHub-{{ section.id }} .gr-shop-hub__heading {
+      font-size: {{ section.settings.mobile_heading_size }}px;
+    }
+  }
+{% endstyle %}
+
+{% stylesheet %}
+  .gr-shop-hub {
+    width: 100%;
+  }
+
+  .gr-shop-hub__header {
+    margin-bottom: 42px;
+  }
+
+  .gr-shop-hub__eyebrow {
+    margin: 0 0 14px;
+    color: var(--gr-hub-accent);
+    font-size: 12px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .gr-shop-hub__heading {
+    margin: 0;
+    color: inherit;
+    font-weight: 900;
+    line-height: 0.92;
+    letter-spacing: -0.045em;
+    text-transform: uppercase;
+  }
+
+  .gr-shop-hub__description {
+    margin: 20px 0 0;
+    color: inherit;
+    font-weight: 500;
+    line-height: 1.5;
+    opacity: 0.72;
+  }
+
+  .gr-shop-hub__quick {
+    margin: 0 0 42px;
+  }
+
+  .gr-shop-hub__quick-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 30px;
+    margin-bottom: 22px;
+  }
+
+  .gr-shop-hub__quick-heading {
+    margin: 0;
+    color: inherit;
+    font-size: 28px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.035em;
+    text-transform: uppercase;
+  }
+
+  .gr-shop-hub__quick-description {
+    max-width: 460px;
+    margin: 0;
+    color: inherit;
+    font-size: 14px;
+    line-height: 1.4;
+    opacity: 0.65;
+  }
+
+  .gr-shop-hub__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .gr-shop-hub__chip {
+    display: inline-flex;
+    min-height: 48px;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 12px 19px;
+    color: inherit;
+    background: transparent;
+    border: 1px solid var(--gr-hub-border);
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition:
+      color 180ms ease,
+      background-color 180ms ease,
+      border-color 180ms ease,
+      transform 180ms ease;
+  }
+
+  a.gr-shop-hub__chip:hover {
+    color: var(--gr-hub-card);
+    background: var(--gr-hub-accent);
+    border-color: var(--gr-hub-accent);
+    transform: translateY(-2px);
+  }
+
+  .gr-shop-hub__chip--disabled {
+    cursor: default;
+  }
+
+  .gr-shop-hub__intent-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--gr-hub-gap);
+  }
+
+  .gr-shop-intent-card {
+    position: relative;
+    display: flex;
+    min-width: 0;
+    min-height: var(--gr-hub-card-height);
+    align-items: flex-end;
+    overflow: hidden;
+    isolation: isolate;
+    color: var(--gr-hub-card-text);
+    background: var(--gr-hub-card);
+    border: 1px solid var(--gr-hub-border);
+    border-radius: var(--gr-hub-radius);
+    text-decoration: none;
+    transition:
+      transform 220ms ease,
+      background-color 220ms ease,
+      border-color 220ms ease;
+  }
+
+  a.gr-shop-intent-card {
+    cursor: pointer;
+  }
+
+  a.gr-shop-intent-card:hover,
+  a.gr-shop-intent-card:focus-visible {
+    z-index: 3;
+    background: var(--gr-hub-hover);
+    border-color: var(--gr-hub-accent);
+    transform: translateY(-4px);
+  }
+
+  .gr-shop-intent-card--featured {
+    border: 1px solid var(--gr-hub-border);
+  }
+
+  .gr-shop-intent-card--disabled {
+    cursor: default;
+  }
+
+  .gr-shop-intent-card__media,
+  .gr-shop-intent-card__overlay {
+    position: absolute;
+    inset: 0;
+  }
+
+  .gr-shop-intent-card__media {
+    z-index: 0;
+  }
+
+  .gr-shop-intent-card__media--icon {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: 24px 28px;
+    pointer-events: none;
+  }
+
+  .gr-shop-intent-card__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 400ms ease;
+  }
+
+  a.gr-shop-intent-card:hover .gr-shop-intent-card__image {
+    transform: scale(1.04);
+  }
+
+  .gr-shop-intent-card__overlay {
+    z-index: 1;
+    background:
+      linear-gradient(
+        to top,
+        rgba(0, 0, 0, 0.94),
+        rgba(0, 0, 0, var(--gr-hub-overlay))
+      );
+    pointer-events: none;
+  }
+
+  .gr-shop-intent-card__icon {
+    display: flex;
+    width: 190px;
+    height: 190px;
+    align-items: center;
+    justify-content: center;
+    color: var(--gr-hub-accent);
+    opacity: 0.14;
+    transform: rotate(-4deg);
+    transform-origin: center;
+    transition:
+      transform 280ms ease,
+      opacity 280ms ease;
+  }
+
+  a.gr-shop-intent-card:hover .gr-shop-intent-card__icon {
+    opacity: 0.28;
+    transform: scale(1.06) rotate(-2deg);
+  }
+
+  .gr-shop-intent-card__icon svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .gr-shop-intent-card__content {
+    position: relative;
+    z-index: 3;
+    width: 100%;
+    max-width: 76%;
+    padding: 30px;
+  }
+
+  .gr-shop-intent-card__small-label {
+    display: block;
+    margin-bottom: 10px;
+    color: var(--gr-hub-accent);
+    font-size: 11px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .gr-shop-intent-card__title {
+    margin: 0;
+    color: inherit;
+    font-weight: 900;
+    line-height: 0.95;
+    letter-spacing: -0.035em;
+    text-transform: uppercase;
+  }
+
+  .gr-shop-intent-card__description {
+    max-width: 440px;
+    margin: 13px 0 0;
+    color: inherit;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.45;
+    opacity: 0.72;
+  }
+
+  .gr-shop-intent-card__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 22px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid currentColor;
+    color: inherit;
+    font-size: 12px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .gr-shop-hub__help {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+    margin-top: 48px;
+    padding: 34px 38px;
+    color: var(--gr-hub-card-text);
+    background: var(--gr-hub-card);
+    border-left: 5px solid var(--gr-hub-accent);
+  }
+
+  .gr-shop-hub__help-content {
+    min-width: 0;
+  }
+
+  .gr-shop-hub__help-label {
+    margin: 0 0 9px;
+    color: var(--gr-hub-accent);
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .gr-shop-hub__help-heading {
+    margin: 0;
+    color: inherit;
+    font-size: 30px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.035em;
+    text-transform: uppercase;
+  }
+
+  .gr-shop-hub__help-description {
+    max-width: 600px;
+    margin: 12px 0 0;
+    color: inherit;
+    font-size: 14px;
+    line-height: 1.45;
+    opacity: 0.7;
+  }
+
+  .gr-shop-hub__help-button {
+    display: inline-flex;
+    flex: 0 0 auto;
+    min-height: 52px;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 14px 24px;
+    color: var(--gr-hub-card);
+    background: var(--gr-hub-accent);
+    border: 2px solid var(--gr-hub-accent);
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition:
+      color 180ms ease,
+      background-color 180ms ease;
+  }
+
+  a.gr-shop-hub__help-button:hover {
+    color: var(--gr-hub-accent);
+    background: transparent;
+  }
+
+  .gr-shop-hub__help-button--disabled {
+    cursor: default;
+  }
+
+  @media screen and (max-width: 989px) {
+    .gr-shop-hub__intent-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .gr-shop-hub__quick-header {
+      display: block;
+    }
+
+    .gr-shop-hub__quick-description {
+      margin-top: 12px;
+    }
+
+    .gr-shop-intent-card__content {
+      max-width: 80%;
+    }
+
+    .gr-shop-intent-card__icon {
+      width: 165px;
+      height: 165px;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .gr-shop-hub__header {
+      margin-bottom: 30px;
+    }
+
+    .gr-shop-hub__quick {
+      margin-bottom: 32px;
+    }
+
+    .gr-shop-hub__intent-grid {
+      gap: 12px;
+    }
+
+    .gr-shop-intent-card__content {
+      max-width: 86%;
+      padding: 22px;
+    }
+
+    .gr-shop-intent-card__media--icon {
+      padding: 16px;
+    }
+
+    .gr-shop-intent-card__icon {
+      width: 125px;
+      height: 125px;
+      opacity: 0.15;
+    }
+
+    .gr-shop-hub__chips {
+      flex-wrap: nowrap;
+      width: calc(100% + 1.5rem);
+      margin-right: -1.5rem;
+      overflow-x: auto;
+      padding-right: 1.5rem;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .gr-shop-hub__chips::-webkit-scrollbar {
+      display: none;
+    }
+
+    .gr-shop-hub__chip {
+      flex: 0 0 auto;
+    }
+
+    .gr-shop-hub__help {
+      display: block;
+      margin-top: 36px;
+      padding: 28px 24px;
+    }
+
+    .gr-shop-hub__help-button {
+      width: 100%;
+      margin-top: 24px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gr-shop-intent-card,
+    .gr-shop-intent-card__image,
+    .gr-shop-intent-card__icon,
+    .gr-shop-hub__chip,
+    .gr-shop-hub__help-button {
+      transition: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "GR shop hub",
+  "tag": "section",
+  "class": "section-gr-shop-hub",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "max_blocks": 16,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Heading"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Small heading",
+      "default": "Get Real Board Shop"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "What are you shopping for?"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Start with what you need. We’ll help you get to the right products without digging through the entire shop."
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 36,
+      "max": 84,
+      "step": 2,
+      "unit": "px",
+      "label": "Desktop heading size",
+      "default": 54
+    },
+    {
+      "type": "range",
+      "id": "mobile_heading_size",
+      "min": 30,
+      "max": 54,
+      "step": 2,
+      "unit": "px",
+      "label": "Mobile heading size",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "heading_width",
+      "min": 400,
+      "max": 1000,
+      "step": 20,
+      "unit": "px",
+      "label": "Heading width",
+      "default": 900
+    },
+    {
+      "type": "range",
+      "id": "description_size",
+      "min": 13,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "label": "Description size",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "description_width",
+      "min": 320,
+      "max": 760,
+      "step": 20,
+      "unit": "px",
+      "label": "Description width",
+      "default": 640
+    },
+    {
+      "type": "header",
+      "content": "Intent cards"
+    },
+    {
+      "type": "range",
+      "id": "card_height",
+      "min": 260,
+      "max": 560,
+      "step": 10,
+      "unit": "px",
+      "label": "Desktop card height",
+      "default": 330
+    },
+    {
+      "type": "range",
+      "id": "mobile_card_height",
+      "min": 240,
+      "max": 460,
+      "step": 10,
+      "unit": "px",
+      "label": "Mobile card height",
+      "default": 300
+    },
+    {
+      "type": "range",
+      "id": "card_gap",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Card spacing",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "label": "Card corner radius",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "card_title_size",
+      "min": 24,
+      "max": 52,
+      "step": 2,
+      "unit": "px",
+      "label": "Card title size",
+      "default": 34
+    },
+    {
+      "type": "range",
+      "id": "image_darkness",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Image darkness",
+      "default": 25
+    },
+    {
+      "type": "header",
+      "content": "Quick categories"
+    },
+    {
+      "type": "text",
+      "id": "quick_heading",
+      "label": "Quick category heading",
+      "default": "Shop by category"
+    },
+    {
+      "type": "textarea",
+      "id": "quick_description",
+      "label": "Quick category description",
+      "default": "Already know what you need? Jump straight to it."
+    },
+    {
+      "type": "header",
+      "content": "Help callout"
+    },
+    {
+      "type": "text",
+      "id": "help_label",
+      "label": "Help small heading",
+      "default": "Not sure where to start?"
+    },
+    {
+      "type": "text",
+      "id": "help_heading",
+      "label": "Help heading",
+      "default": "Ask a real skater."
+    },
+    {
+      "type": "textarea",
+      "id": "help_description",
+      "label": "Help description",
+      "default": "Tell us what you skate, what you need and what you want to spend. We’ll point you in the right direction."
+    },
+    {
+      "type": "text",
+      "id": "help_button",
+      "label": "Help button wording",
+      "default": "Get help"
+    },
+    {
+      "type": "url",
+      "id": "help_link",
+      "label": "Help button link"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Page background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Page text",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Card background",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "card_hover_background",
+      "label": "Card hover background",
+      "default": "#1b1b1b"
+    },
+    {
+      "type": "color",
+      "id": "card_text_color",
+      "label": "Card text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#ff9d00"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border color",
+      "default": "#dedede"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 24,
+      "max": 140,
+      "step": 4,
+      "unit": "px",
+      "label": "Desktop top padding",
+      "default": 52
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 24,
+      "max": 140,
+      "step": 4,
+      "unit": "px",
+      "label": "Desktop bottom padding",
+      "default": 72
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_top",
+      "min": 20,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Mobile top padding",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_bottom",
+      "min": 20,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Mobile bottom padding",
+      "default": 44
+    }
+  ],
+  "blocks": [
+    {
+      "type": "intent",
+      "name": "Shopping path",
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "featured",
+          "label": "Highlight with accent border",
+          "default": false
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Optional background image"
+        },
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "default": "board",
+          "options": [
+            {
+              "value": "board",
+              "label": "Skateboard"
+            },
+            {
+              "value": "part",
+              "label": "Replacement part"
+            },
+            {
+              "value": "new",
+              "label": "New arrivals"
+            },
+            {
+              "value": "gift",
+              "label": "Gift"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "small_label",
+          "label": "Small label",
+          "default": "Start here"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Build my board"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Description",
+          "default": "Build a complete setup one step at a time."
+        },
+        {
+          "type": "text",
+          "id": "link_label",
+          "label": "Link wording",
+          "default": "Get started"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Card link"
+        }
+      ]
+    },
+    {
+      "type": "quick_link",
+      "name": "Quick category",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Category name",
+          "default": "Decks"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Category link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "GR shop hub",
+      "blocks": [
+        {
+          "type": "intent",
+          "settings": {
+            "featured": false,
+            "icon": "board",
+            "small_label": "First setup?",
+            "title": "Build my board",
+            "description": "We’ll walk you through every part and make sure everything fits.",
+            "link_label": "Start building"
+          }
+        },
+        {
+          "type": "intent",
+          "settings": {
+            "featured": false,
+            "icon": "part",
+            "small_label": "Broke something?",
+            "title": "Replace a part",
+            "description": "Find the right deck, trucks, wheels, bearings or hardware.",
+            "link_label": "Find parts"
+          }
+        },
+        {
+          "type": "intent",
+          "settings": {
+            "featured": false,
+            "icon": "new",
+            "small_label": "What’s new?",
+            "title": "Just dropped",
+            "description": "The newest products to land at Get Real.",
+            "link_label": "Shop new"
+          }
+        },
+        {
+          "type": "intent",
+          "settings": {
+            "featured": false,
+            "icon": "gift",
+            "small_label": "Don’t skate?",
+            "title": "Buying a gift",
+            "description": "Tell us who you’re buying for and we’ll make it easy.",
+            "link_label": "Find a gift"
+          }
+        },
+        {
+          "type": "quick_link",
+          "settings": {
+            "label": "Decks"
+          }
+        },
+        {
+          "type": "quick_link",
+          "settings": {
+            "label": "Trucks"
+          }
+        },
+        {
+          "type": "quick_link",
+          "settings": {
+            "label": "Wheels"
+          }
+        },
+        {
+          "type": "quick_link",
+          "settings": {
+            "label": "Bearings"
+          }
+        },
+        {
+          "type": "quick_link",
+          "settings": {
+            "label": "Grip tape"
+          }
+        },
+        {
+          "type": "quick_link",
+          "settings": {
+            "label": "Hardware"
+          }
+        },
+        {
+          "type": "quick_link",
+          "settings": {
+            "label": "Shoes"
+          }
+        },
+        {
+          "type": "quick_link",
+          "settings": {
+            "label": "Apparel"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

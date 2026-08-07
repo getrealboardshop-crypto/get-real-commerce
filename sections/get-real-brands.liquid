@@ -1,0 +1,810 @@
+{% comment %}
+  GET REAL BRANDS v1.3
+
+  CHANGES
+  - Centered logos and card text
+  - Reduced dead space between logo and title
+  - Entire brand card is clickable
+  - Added subtle hover background, lift and logo zoom
+  - Brightened subtitles
+  - Added automatic brand-specific CTA wording
+  - Preserved individual logo scale and white-logo controls
+{% endcomment %}
+
+<section
+  id="GRBrands-{{ section.id }}"
+  class="gr-brands"
+>
+  <div class="gr-brands__inner page-width">
+    <div class="gr-brands__header">
+      {% if section.settings.heading != blank %}
+        <h2 class="gr-brands__heading">
+          {{ section.settings.heading | escape }}
+        </h2>
+      {% endif %}
+
+      {% if section.settings.show_view_all
+        and section.settings.view_all_label != blank
+        and section.settings.view_all_link != blank
+      %}
+        <a
+          class="gr-brands__view-all"
+          href="{{ section.settings.view_all_link }}"
+        >
+          {{ section.settings.view_all_label | escape }}
+          <span aria-hidden="true">→</span>
+        </a>
+      {% endif %}
+    </div>
+
+    <div class="gr-brands__grid">
+      {% for block in section.blocks %}
+        <a
+          class="gr-brand-card"
+          href="{{ block.settings.link | default: '#' }}"
+          aria-label="Shop {{ block.settings.title | escape }}"
+          {{ block.shopify_attributes }}
+        >
+          <div class="gr-brand-card__logo-area">
+            <div class="gr-brand-card__hover-layer">
+              <div
+                class="gr-brand-card__scale-layer{% if block.settings.make_logo_white %} gr-brand-card__scale-layer--white{% endif %}"
+                style="--gr-individual-logo-scale: {{ block.settings.logo_scale | divided_by: 100.0 }};"
+              >
+                {% if block.settings.image != blank %}
+                  {{
+                    block.settings.image
+                    | image_url: width: 1200
+                    | image_tag:
+                      class: 'gr-brand-card__logo',
+                      widths: '240, 360, 480, 640, 800, 1000, 1200',
+                      sizes: '(min-width: 990px) 25vw, (min-width: 750px) 50vw, 100vw',
+                      loading: 'lazy',
+                      alt: block.settings.image.alt
+                  }}
+                {% else %}
+                  {{ 'collection-1' | placeholder_svg_tag: 'gr-brand-card__placeholder' }}
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="gr-brand-card__content">
+            {% if block.settings.title != blank %}
+              <h3 class="gr-brand-card__title">
+                {{ block.settings.title | escape }}
+              </h3>
+            {% endif %}
+
+            {% if block.settings.subtitle != blank %}
+              <p class="gr-brand-card__subtitle">
+                {{ block.settings.subtitle | escape }}
+              </p>
+            {% endif %}
+
+            {% if block.settings.show_link %}
+              <span class="gr-brand-card__link">
+                {% if block.settings.use_brand_name_in_link %}
+                  Shop {{ block.settings.title | escape }}
+                {% elsif block.settings.link_label != blank %}
+                  {{ block.settings.link_label | escape }}
+                {% else %}
+                  Shop brand
+                {% endif %}
+
+                <span aria-hidden="true">→</span>
+              </span>
+            {% endif %}
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+
+    {% if section.settings.show_bottom_button
+      and section.settings.view_all_label != blank
+      and section.settings.view_all_link != blank
+    %}
+      <div class="gr-brands__button-wrap">
+        <a
+          class="gr-brands__button"
+          href="{{ section.settings.view_all_link }}"
+        >
+          {{ section.settings.view_all_label | escape }}
+        </a>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+{% style %}
+  #GRBrands-{{ section.id }} {
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+    background-color: {{ section.settings.background_color }};
+    color: {{ section.settings.text_color }};
+  }
+
+  #GRBrands-{{ section.id }} .gr-brands__heading {
+    font-size: {{ section.settings.heading_size }}px;
+  }
+
+  #GRBrands-{{ section.id }} .gr-brands__grid {
+    grid-template-columns: repeat(
+      {{ section.settings.columns_desktop }},
+      minmax(0, 1fr)
+    );
+    gap: {{ section.settings.card_gap }}px;
+  }
+
+  #GRBrands-{{ section.id }} .gr-brand-card {
+    background-color: {{ section.settings.card_background }};
+  }
+
+  #GRBrands-{{ section.id }} .gr-brand-card:hover {
+    background-color: {{ section.settings.card_hover_background }};
+    transform: translateY(-{{ section.settings.hover_lift }}px);
+  }
+
+  #GRBrands-{{ section.id }} .gr-brand-card__logo-area {
+    height: {{ section.settings.logo_area_height }}px;
+    padding: {{ section.settings.logo_padding }}px;
+  }
+
+  #GRBrands-{{ section.id }} .gr-brand-card__hover-layer {
+    max-width: {{ section.settings.logo_max_width }}%;
+    max-height: {{ section.settings.logo_max_height }}%;
+  }
+
+  #GRBrands-{{ section.id }} .gr-brand-card:hover .gr-brand-card__hover-layer {
+    transform: scale({{ section.settings.hover_zoom | divided_by: 100.0 }});
+  }
+
+  #GRBrands-{{ section.id }} .gr-brand-card__content {
+    padding:
+      {{ section.settings.content_padding_top }}px
+      {{ section.settings.content_padding_horizontal }}px
+      {{ section.settings.content_padding_bottom }}px;
+  }
+
+  #GRBrands-{{ section.id }} .gr-brand-card__title {
+    font-size: {{ section.settings.brand_name_size }}px;
+  }
+
+  #GRBrands-{{ section.id }} .gr-brand-card__subtitle {
+    font-size: {{ section.settings.subtitle_size }}px;
+    opacity: {{ section.settings.subtitle_opacity | divided_by: 100.0 }};
+  }
+
+  @media screen and (max-width: 989px) {
+    #GRBrands-{{ section.id }} .gr-brands__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    #GRBrands-{{ section.id }} {
+      padding-top: {{ section.settings.mobile_padding_top }}px;
+      padding-bottom: {{ section.settings.mobile_padding_bottom }}px;
+    }
+
+    #GRBrands-{{ section.id }} .gr-brands__grid {
+      grid-template-columns: repeat(
+        {{ section.settings.columns_mobile }},
+        minmax(0, 1fr)
+      );
+      gap: {{ section.settings.mobile_card_gap }}px;
+    }
+
+    #GRBrands-{{ section.id }} .gr-brand-card__logo-area {
+      height: {{ section.settings.mobile_logo_area_height }}px;
+    }
+  }
+{% endstyle %}
+
+{% stylesheet %}
+  .gr-brands {
+    width: 100%;
+  }
+
+  .gr-brands__header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 30px;
+  }
+
+  .gr-brands__heading {
+    margin: 0;
+    color: inherit;
+    font-weight: 900;
+    line-height: 0.95;
+    letter-spacing: -0.035em;
+    text-transform: uppercase;
+  }
+
+  .gr-brands__view-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 3px;
+    border-bottom: 1px solid currentColor;
+    color: inherit;
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+
+  .gr-brands__grid {
+    display: grid;
+    align-items: stretch;
+  }
+
+  .gr-brand-card {
+    display: flex;
+    min-width: 0;
+    height: 100%;
+    flex-direction: column;
+    color: inherit;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      transform 220ms ease,
+      background-color 220ms ease;
+  }
+
+  .gr-brand-card__logo-area {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: flex-end;
+    justify-content: center;
+    overflow: visible;
+  }
+
+  .gr-brand-card__hover-layer {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    transform-origin: center;
+    transition: transform 320ms ease;
+  }
+
+  .gr-brand-card__scale-layer {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    transform: scale(var(--gr-individual-logo-scale, 1));
+    transform-origin: center;
+  }
+
+  .gr-brand-card__logo,
+  .gr-brand-card__placeholder {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center bottom;
+  }
+
+  .gr-brand-card__scale-layer--white .gr-brand-card__logo {
+    filter: brightness(0) saturate(100%) invert(1);
+  }
+
+  .gr-brand-card__content {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .gr-brand-card__title {
+    margin: 0;
+    color: inherit;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.035em;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  .gr-brand-card__subtitle {
+    margin: 9px 0 0;
+    color: inherit;
+    font-weight: 600;
+    line-height: 1.3;
+    text-align: center;
+  }
+
+  .gr-brand-card__link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid currentColor;
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: 0.05em;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  .gr-brands__button-wrap {
+    display: flex;
+    justify-content: center;
+    margin-top: 32px;
+  }
+
+  .gr-brands__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 50px;
+    padding: 14px 30px;
+    border: 2px solid currentColor;
+    color: inherit;
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1;
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+
+  @media screen and (max-width: 749px) {
+    .gr-brands__header {
+      align-items: flex-start;
+      margin-bottom: 22px;
+    }
+
+    .gr-brands__view-all {
+      display: none;
+    }
+
+    .gr-brand-card:hover {
+      transform: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gr-brand-card,
+    .gr-brand-card__hover-layer {
+      transition: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "GR brands",
+  "tag": "section",
+  "class": "section-gr-brands",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "max_blocks": 8,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Featured brands"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_view_all",
+      "label": "Show View All beside heading",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_bottom_button",
+      "label": "Show View All button underneath",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "view_all_label",
+      "label": "View All wording",
+      "default": "View all"
+    },
+    {
+      "type": "url",
+      "id": "view_all_link",
+      "label": "View All link"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "columns_desktop",
+      "label": "Desktop columns",
+      "default": "4",
+      "options": [
+        {
+          "value": "3",
+          "label": "3"
+        },
+        {
+          "value": "4",
+          "label": "4"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "Mobile columns",
+      "default": "1",
+      "options": [
+        {
+          "value": "1",
+          "label": "1"
+        },
+        {
+          "value": "2",
+          "label": "2"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "logo_area_height",
+      "min": 120,
+      "max": 360,
+      "step": 10,
+      "unit": "px",
+      "label": "Desktop logo area height",
+      "default": 190
+    },
+    {
+      "type": "range",
+      "id": "mobile_logo_area_height",
+      "min": 100,
+      "max": 280,
+      "step": 10,
+      "unit": "px",
+      "label": "Mobile logo area height",
+      "default": 170
+    },
+    {
+      "type": "range",
+      "id": "card_gap",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Desktop card spacing",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "mobile_card_gap",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "label": "Mobile card spacing",
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Logo appearance"
+    },
+    {
+      "type": "range",
+      "id": "logo_padding",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Logo-area padding",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "logo_max_width",
+      "min": 40,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Maximum logo width",
+      "default": 90
+    },
+    {
+      "type": "range",
+      "id": "logo_max_height",
+      "min": 40,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Maximum logo height",
+      "default": 90
+    },
+    {
+      "type": "range",
+      "id": "hover_zoom",
+      "min": 100,
+      "max": 110,
+      "step": 1,
+      "unit": "%",
+      "label": "Hover logo zoom",
+      "default": 103
+    },
+    {
+      "type": "range",
+      "id": "hover_lift",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "label": "Hover card lift",
+      "default": 3
+    },
+    {
+      "type": "header",
+      "content": "Card spacing"
+    },
+    {
+      "type": "range",
+      "id": "content_padding_top",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Space above brand name",
+      "default": 6
+    },
+    {
+      "type": "range",
+      "id": "content_padding_horizontal",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Horizontal content padding",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "content_padding_bottom",
+      "min": 10,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Bottom content padding",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 24,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Section heading size",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "brand_name_size",
+      "min": 20,
+      "max": 44,
+      "step": 2,
+      "unit": "px",
+      "label": "Brand name size",
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "subtitle_size",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Subtitle size",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "subtitle_opacity",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Subtitle brightness",
+      "default": 85
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Section background",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Section text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Card background",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "card_hover_background",
+      "label": "Card hover background",
+      "default": "#171717"
+    },
+    {
+      "type": "header",
+      "content": "Section spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 20,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Desktop top padding",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 20,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Desktop bottom padding",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_top",
+      "min": 16,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "label": "Mobile top padding",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_bottom",
+      "min": 16,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "label": "Mobile bottom padding",
+      "default": 32
+    }
+  ],
+  "blocks": [
+    {
+      "type": "brand",
+      "name": "Brand card",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Brand logo"
+        },
+        {
+          "type": "range",
+          "id": "logo_scale",
+          "min": 50,
+          "max": 150,
+          "step": 5,
+          "unit": "%",
+          "label": "Logo scale",
+          "default": 100
+        },
+        {
+          "type": "checkbox",
+          "id": "make_logo_white",
+          "label": "Make logo white",
+          "default": false
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Brand name",
+          "default": "Spitfire"
+        },
+        {
+          "type": "text",
+          "id": "subtitle",
+          "label": "Subtitle",
+          "default": "Wheels and accessories"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_link",
+          "label": "Show shop link",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "use_brand_name_in_link",
+          "label": "Use brand name in link",
+          "default": true
+        },
+        {
+          "type": "text",
+          "id": "link_label",
+          "label": "Custom link wording",
+          "default": "Shop brand"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Brand link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "GR brands",
+      "blocks": [
+        {
+          "type": "brand",
+          "settings": {
+            "title": "Spitfire",
+            "subtitle": "Wheels and accessories"
+          }
+        },
+        {
+          "type": "brand",
+          "settings": {
+            "title": "Jacuzzi Unlimited",
+            "subtitle": "Skateboard decks"
+          }
+        },
+        {
+          "type": "brand",
+          "settings": {
+            "title": "Slappy",
+            "subtitle": "Trucks and hardware"
+          }
+        },
+        {
+          "type": "brand",
+          "settings": {
+            "title": "Lakai",
+            "subtitle": "Skate shoes and apparel"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

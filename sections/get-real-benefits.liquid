@@ -1,0 +1,448 @@
+<section
+  id="GetRealBenefits-{{ section.id }}"
+  class="gr-benefits"
+>
+  <div class="gr-benefits__inner page-width">
+    {% for block in section.blocks %}
+      <div
+        class="gr-benefits__item"
+        {{ block.shopify_attributes }}
+      >
+        <div class="gr-benefits__icon" aria-hidden="true">
+          {% if block.settings.custom_icon != blank %}
+            {{
+              block.settings.custom_icon
+              | image_url: width: 200
+              | image_tag:
+                class: 'gr-benefits__custom-icon',
+                widths: '40, 60, 80, 120, 160, 200',
+                loading: 'lazy'
+            }}
+          {% else %}
+            {% case block.settings.icon %}
+              {% when 'logo' %}
+                <svg viewBox="0 0 24 24" role="img">
+                  <circle cx="12" cy="12" r="9"></circle>
+                  <path d="M8 8h5a3 3 0 0 1 0 6H9"></path>
+                  <path d="M9 8v8"></path>
+                  <path d="M13 14l3 2"></path>
+                </svg>
+
+              {% when 'location' %}
+                <svg viewBox="0 0 24 24" role="img">
+                  <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"></path>
+                  <circle cx="12" cy="10" r="2.5"></circle>
+                </svg>
+
+              {% when 'zap' %}
+                <svg viewBox="0 0 24 24" role="img">
+                  <path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"></path>
+                </svg>
+
+              {% when 'chat' %}
+                <svg viewBox="0 0 24 24" role="img">
+                  <path d="M21 12a8 8 0 0 1-8 8H8l-5 3 1.5-5A9 9 0 1 1 21 12Z"></path>
+                  <path d="M8 12h.01"></path>
+                  <path d="M12 12h.01"></path>
+                  <path d="M16 12h.01"></path>
+                </svg>
+            {% endcase %}
+          {% endif %}
+        </div>
+
+        <div class="gr-benefits__copy">
+          {% if block.settings.heading != blank %}
+            <h3 class="gr-benefits__heading">
+              {{ block.settings.heading | escape }}
+            </h3>
+          {% endif %}
+
+          {% if block.settings.text != blank %}
+            <p class="gr-benefits__text">
+              {{ block.settings.text | escape }}
+            </p>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+{% style %}
+  #GetRealBenefits-{{ section.id }} {
+    background-color: {{ section.settings.background_color }};
+    color: {{ section.settings.text_color }};
+    border-top: {{ section.settings.border_width }}px solid {{ section.settings.border_color }};
+    border-bottom: {{ section.settings.border_width }}px solid {{ section.settings.border_color }};
+  }
+
+  #GetRealBenefits-{{ section.id }} .gr-benefits__inner {
+    padding-top: {{ section.settings.vertical_padding }}px;
+    padding-bottom: {{ section.settings.vertical_padding }}px;
+  }
+
+  #GetRealBenefits-{{ section.id }} .gr-benefits__icon {
+    width: {{ section.settings.icon_size }}px;
+    height: {{ section.settings.icon_size }}px;
+    color: {{ section.settings.icon_color }};
+  }
+
+  #GetRealBenefits-{{ section.id }} .gr-benefits__custom-icon {
+    transform: scale({{ section.settings.custom_icon_scale | divided_by: 100.0 }});
+  }
+
+  {% if section.settings.make_custom_icons_white %}
+    #GetRealBenefits-{{ section.id }} .gr-benefits__custom-icon {
+      filter: brightness(0) invert(1);
+    }
+  {% else %}
+    #GetRealBenefits-{{ section.id }} .gr-benefits__custom-icon {
+      filter: none;
+    }
+  {% endif %}
+
+  #GetRealBenefits-{{ section.id }} .gr-benefits__heading {
+    font-size: {{ section.settings.heading_size }}px;
+  }
+
+  #GetRealBenefits-{{ section.id }} .gr-benefits__text {
+    font-size: {{ section.settings.text_size }}px;
+    opacity: {{ section.settings.text_opacity | divided_by: 100.0 }};
+  }
+
+  @media screen and (max-width: 749px) {
+    #GetRealBenefits-{{ section.id }} .gr-benefits__inner {
+      padding-top: {{ section.settings.mobile_vertical_padding }}px;
+      padding-bottom: {{ section.settings.mobile_vertical_padding }}px;
+    }
+  }
+{% endstyle %}
+
+{% stylesheet %}
+  .gr-benefits {
+    width: 100%;
+  }
+
+  .gr-benefits__inner {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: stretch;
+  }
+
+  .gr-benefits__item {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    gap: 18px;
+    min-width: 0;
+    padding: 0 30px;
+  }
+
+  .gr-benefits__item:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 10%;
+    right: 0;
+    width: 1px;
+    height: 80%;
+    background: currentColor;
+    opacity: 0.22;
+  }
+
+  .gr-benefits__icon {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    margin-top: 2px;
+    overflow: visible;
+  }
+
+  .gr-benefits__icon svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .gr-benefits__custom-icon {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transform-origin: center;
+  }
+
+  .gr-benefits__copy {
+    min-width: 0;
+  }
+
+  .gr-benefits__heading {
+    min-height: 1.15em;
+    margin: 0;
+    color: inherit;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+  }
+
+  .gr-benefits__text {
+    min-height: 2.6em;
+    margin: 5px 0 0;
+    color: inherit;
+    line-height: 1.3;
+  }
+
+  @media screen and (max-width: 989px) {
+    .gr-benefits__inner {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 28px 0;
+    }
+
+    .gr-benefits__item:nth-child(2)::after {
+      display: none;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .gr-benefits__inner {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+
+    .gr-benefits__item {
+      padding: 20px 0;
+    }
+
+    .gr-benefits__item:not(:last-child)::after {
+      top: auto;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 1px;
+    }
+
+    .gr-benefits__heading,
+    .gr-benefits__text {
+      min-height: 0;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Get Real benefits",
+  "tag": "section",
+  "class": "section-get-real-benefits",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "max_blocks": 4,
+  "settings": [
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#0b0b0b"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "icon_color",
+      "label": "Built-in icon color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "checkbox",
+      "id": "make_custom_icons_white",
+      "label": "Make uploaded icons white",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "custom_icon_scale",
+      "min": 80,
+      "max": 150,
+      "step": 5,
+      "unit": "%",
+      "label": "Custom icon scale",
+      "default": 115
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border color",
+      "default": "#2a2a2a"
+    },
+    {
+      "type": "range",
+      "id": "border_width",
+      "min": 0,
+      "max": 3,
+      "step": 1,
+      "unit": "px",
+      "label": "Border width",
+      "default": 1
+    },
+    {
+      "type": "range",
+      "id": "icon_size",
+      "min": 24,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Built-in icon size",
+      "default": 38
+    },
+    {
+      "type": "range",
+      "id": "vertical_padding",
+      "min": 15,
+      "max": 60,
+      "step": 1,
+      "unit": "px",
+      "label": "Desktop vertical padding",
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "mobile_vertical_padding",
+      "min": 0,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile vertical padding",
+      "default": 5
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 12,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "label": "Heading size",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "min": 11,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "label": "Description size",
+      "default": 13
+    },
+    {
+      "type": "range",
+      "id": "text_opacity",
+      "min": 40,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Description opacity",
+      "default": 75
+    }
+  ],
+  "blocks": [
+    {
+      "type": "benefit",
+      "name": "Benefit",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "custom_icon",
+          "label": "Upload custom icon"
+        },
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Built-in icon",
+          "default": "logo",
+          "options": [
+            {
+              "value": "logo",
+              "label": "Generic logo"
+            },
+            {
+              "value": "location",
+              "label": "Location"
+            },
+            {
+              "value": "zap",
+              "label": "Lightning bolt"
+            },
+            {
+              "value": "chat",
+              "label": "Chat"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Real skate shop"
+        },
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Description",
+          "default": "Skater owned since 2020."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Get Real benefits",
+      "blocks": [
+        {
+          "type": "benefit",
+          "settings": {
+            "icon": "logo",
+            "heading": "Real skate shop",
+            "text": "Skater owned since 2020."
+          }
+        },
+        {
+          "type": "benefit",
+          "settings": {
+            "icon": "location",
+            "heading": "Local pickup",
+            "text": "Bentonville, Arkansas."
+          }
+        },
+        {
+          "type": "benefit",
+          "settings": {
+            "icon": "zap",
+            "heading": "Ships fast",
+            "text": "Orders ship the same day when possible."
+          }
+        },
+        {
+          "type": "benefit",
+          "settings": {
+            "icon": "chat",
+            "heading": "Need help?",
+            "text": "Stop by or give us a call."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

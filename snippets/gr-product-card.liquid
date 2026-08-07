@@ -1,0 +1,166 @@
+{% comment %}
+  GET REAL PRODUCT CARD v1.1
+
+  Badge priority:
+  1. Sold out
+  2. Sale
+  3. Staff pick
+  4. Limited
+  5. Back in
+  6. New drop / Just in
+{% endcomment %}
+
+{% liquid
+  assign current_variant = card_product.selected_or_first_available_variant
+  assign has_second_image = false
+  assign custom_badge = blank
+
+  if show_second_image and card_product.images.size > 1
+    assign has_second_image = true
+  endif
+
+  if card_product.tags contains staff_pick_tag
+    assign custom_badge = staff_pick_label
+  elsif card_product.tags contains limited_tag
+    assign custom_badge = limited_label
+  elsif card_product.tags contains back_in_tag
+    assign custom_badge = back_in_label
+  elsif card_product.tags contains new_drop_tag
+    assign custom_badge = new_drop_label
+  endif
+%}
+
+<article class="gr-product-card{% if has_second_image %} gr-product-card--has-secondary{% endif %}">
+  <div class="gr-product-card__visual">
+    <a
+      class="gr-product-card__media-link"
+      href="{{ card_product.url }}"
+      aria-label="{{ card_product.title | escape }}"
+    >
+      <div class="gr-product-card__media">
+        {% if card_product.featured_image != blank %}
+          {{
+            card_product.featured_image
+            | image_url: width: 1000
+            | image_tag:
+              class: 'gr-product-card__image gr-product-card__image--primary',
+              widths: '220, 320, 440, 600, 800, 1000',
+              sizes: '(min-width: 1200px) 25vw, (min-width: 750px) 33vw, 50vw',
+              loading: 'lazy',
+              alt: card_product.featured_image.alt
+          }}
+
+          {% if has_second_image %}
+            {{
+              card_product.images[1]
+              | image_url: width: 1000
+              | image_tag:
+                class: 'gr-product-card__image gr-product-card__image--secondary',
+                widths: '220, 320, 440, 600, 800, 1000',
+                sizes: '(min-width: 1200px) 25vw, (min-width: 750px) 33vw, 50vw',
+                loading: 'lazy',
+                alt: card_product.images[1].alt
+            }}
+          {% endif %}
+        {% else %}
+          {{ 'product-1' | placeholder_svg_tag: 'gr-product-card__placeholder' }}
+        {% endif %}
+      </div>
+    </a>
+
+    <div class="gr-product-card__badges">
+      {% unless card_product.available %}
+        <span class="gr-product-card__badge">
+          {{ sold_out_label | default: 'Sold out' | escape }}
+        </span>
+      {% else %}
+        {% if card_product.compare_at_price_max > card_product.price %}
+          <span class="gr-product-card__badge">
+            {{ sale_label | default: 'Sale' | escape }}
+          </span>
+        {% elsif custom_badge != blank %}
+          <span class="gr-product-card__badge">
+            {{ custom_badge | escape }}
+          </span>
+        {% endif %}
+      {% endunless %}
+    </div>
+
+    {% if show_quick_add %}
+      <div class="gr-product-card__quick-add">
+        {% if card_product.available %}
+          {% if card_product.has_only_default_variant %}
+            {% form 'product', card_product, class: 'gr-product-card__form' %}
+              <input
+                type="hidden"
+                name="id"
+                value="{{ current_variant.id }}"
+              >
+
+              <input
+                type="hidden"
+                name="quantity"
+                value="1"
+              >
+
+              <button
+                class="gr-product-card__quick-button"
+                type="submit"
+                name="add"
+              >
+                Quick add
+              </button>
+            {% endform %}
+          {% else %}
+            <a
+              class="gr-product-card__quick-button"
+              href="{{ card_product.url }}"
+            >
+              Choose options
+            </a>
+          {% endif %}
+        {% else %}
+          <button
+            class="gr-product-card__quick-button"
+            type="button"
+            disabled
+          >
+            Sold out
+          </button>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="gr-product-card__content">
+    {% if show_vendor and card_product.vendor != blank %}
+      <p class="gr-product-card__vendor">
+        {{ card_product.vendor | escape }}
+      </p>
+    {% endif %}
+
+    <h3 class="gr-product-card__title">
+      <a href="{{ card_product.url }}">
+        {{ card_product.title | escape }}
+      </a>
+    </h3>
+
+    <div class="gr-product-card__price">
+      {% if card_product.price_varies %}
+        <span class="gr-product-card__price-prefix">
+          From
+        </span>
+      {% endif %}
+
+      <span class="gr-product-card__price-current">
+        {{ card_product.price | money }}
+      </span>
+
+      {% if card_product.compare_at_price_max > card_product.price %}
+        <s class="gr-product-card__price-compare">
+          {{ card_product.compare_at_price_max | money }}
+        </s>
+      {% endif %}
+    </div>
+  </div>
+</article>

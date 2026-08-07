@@ -1,0 +1,139 @@
+{% liquid
+  assign builder_variant = card_product.selected_or_first_available_variant
+  assign builder_image = card_product.featured_image
+  assign search_text = card_product.title | append: ' ' | append: card_product.vendor | append: ' ' | append: card_product.tags | downcase | escape
+%}
+
+<article
+  class="gr-builder-product"
+  data-builder-product
+  data-step-key="{{ step_key }}"
+  data-step-label="{{ step_label | escape }}"
+  data-product-title="{{ card_product.title | escape }}"
+  data-product-handle="{{ card_product.handle }}"
+  data-product-url="{{ card_product.url }}"
+  data-vendor="{{ card_product.vendor | escape }}"
+  data-variant-id="{{ builder_variant.id }}"
+  data-variant-title="{{ builder_variant.title | escape }}"
+  data-price="{{ builder_variant.price }}"
+  data-available="{{ builder_variant.available }}"
+  data-quantity="{{ default_quantity | default: 1 }}"
+  data-search-text="{{ search_text }}"
+  {% if builder_image != blank %}
+    data-image="{{ builder_image | image_url: width: 900 }}"
+  {% else %}
+    data-image=""
+  {% endif %}
+>
+  <button
+    class="gr-builder-product__image-wrap"
+    type="button"
+    data-builder-card-select
+    aria-label="Choose {{ card_product.title | escape }}"
+    {% unless builder_variant.available %}disabled{% endunless %}
+  >
+    {% if builder_image != blank %}
+      {{
+        builder_image
+        | image_url: width: 700
+        | image_tag:
+          class: 'gr-builder-product__image',
+          widths: '240, 360, 480, 600, 700',
+          sizes: '(min-width: 990px) 25vw, 50vw',
+          loading: 'lazy',
+          alt: builder_image.alt
+      }}
+    {% else %}
+      {{ 'product-1' | placeholder_svg_tag: 'gr-builder-product__placeholder' }}
+    {% endif %}
+
+    {% unless builder_variant.available %}
+      <span class="gr-builder-product__badge">Sold out</span>
+    {% endunless %}
+  </button>
+
+  <div class="gr-builder-product__body">
+    {% if card_product.vendor != blank %}
+      <span class="gr-builder-product__vendor">{{ card_product.vendor | escape }}</span>
+    {% endif %}
+
+    <h3 class="gr-builder-product__title">{{ card_product.title | escape }}</h3>
+
+    <span class="gr-builder-product__price" data-builder-card-price>
+      {{ builder_variant.price | money }}
+    </span>
+
+    <button
+      class="gr-builder-product__details"
+      type="button"
+      data-builder-details
+    >
+      View details ↗
+    </button>
+
+    <span
+      class="gr-builder-product__recommendation"
+      data-builder-recommendation
+    ></span>
+
+    {% if card_product.has_only_default_variant == false %}
+      <div class="gr-builder-product__variant-wrap">
+        <label
+          class="gr-builder-product__variant-label"
+          for="GRBuilderVariant-{{ section.id }}-{{ card_product.id }}-{{ step_key }}"
+        >
+          Choose option
+        </label>
+
+        <select
+          id="GRBuilderVariant-{{ section.id }}-{{ card_product.id }}-{{ step_key }}"
+          class="gr-builder-product__variant"
+          data-builder-variant-select
+        >
+          {% for variant in card_product.variants %}
+            <option
+              value="{{ variant.id }}"
+              data-price="{{ variant.price }}"
+              data-variant-title="{{ variant.title | escape }}"
+              data-available="{{ variant.available }}"
+              {% if variant.id == builder_variant.id %}selected{% endif %}
+              {% unless variant.available %}disabled{% endunless %}
+            >
+              {{ variant.title | escape }} — {{ variant.price | money }}
+              {% unless variant.available %} — Sold out{% endunless %}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+    {% endif %}
+
+    <button
+      class="gr-builder-product__select"
+      type="button"
+      data-builder-select
+      {% unless builder_variant.available %}disabled{% endunless %}
+    >
+      {% if builder_variant.available %}Choose this{% else %}Sold out{% endif %}
+    </button>
+  </div>
+
+  <span data-builder-quick-description hidden>
+    {{ card_product.description | strip_html | strip | truncatewords: 70 }}
+  </span>
+
+  <script type="application/json" data-builder-product-media>
+    [
+      {% assign builder_media_count = 0 %}
+      {% for media in card_product.media %}
+        {% if media.media_type == 'image' and builder_media_count < 6 %}
+          {% if builder_media_count > 0 %},{% endif %}
+          {
+            "src": {{ media.preview_image | image_url: width: 1200 | json }},
+            "alt": {{ media.alt | default: card_product.title | json }}
+          }
+          {% assign builder_media_count = builder_media_count | plus: 1 %}
+        {% endif %}
+      {% endfor %}
+    ]
+  </script>
+</article>

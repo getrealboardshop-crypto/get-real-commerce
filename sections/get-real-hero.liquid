@@ -1,0 +1,677 @@
+{% style %}
+  {{ section.settings.heading_font | font_face: font_display: 'swap' }}
+  {{ section.settings.subheading_font | font_face: font_display: 'swap' }}
+
+  #GetRealHero-{{ section.id }} {
+    min-height: {{ section.settings.desktop_height }}px;
+    color: {{ section.settings.text_color }};
+    background-color: #111111;
+  }
+
+  #GetRealHero-{{ section.id }} .gr-hero__outer {
+    min-height: {{ section.settings.desktop_height }}px;
+  }
+
+  #GetRealHero-{{ section.id }} .gr-hero__overlay {
+    background-color: #000000;
+    opacity: {{ section.settings.overlay_darkness | divided_by: 100.0 }};
+  }
+
+  #GetRealHero-{{ section.id }} .gr-hero__content {
+    width: min(100%, {{ section.settings.content_width }}px);
+  }
+
+  #GetRealHero-{{ section.id }} .gr-hero__heading {
+    transform: translateX({{ section.settings.heading_nudge }}px);
+    font-family: {{ section.settings.heading_font.family }}, {{ section.settings.heading_font.fallback_families }};
+    font-style: {{ section.settings.heading_font.style }};
+    font-weight: {{ section.settings.heading_font.weight }};
+    font-size: {{ section.settings.heading_size }}px;
+    line-height: {{ section.settings.heading_line_height | divided_by: 100.0 }};
+    letter-spacing: {{ section.settings.heading_letter_spacing | divided_by: 1000.0 }}em;
+  }
+
+  #GetRealHero-{{ section.id }} .gr-hero__subheading {
+    margin-top: {{ section.settings.heading_subheading_spacing }}px;
+    font-family: {{ section.settings.subheading_font.family }}, {{ section.settings.subheading_font.fallback_families }};
+    font-style: {{ section.settings.subheading_font.style }};
+    font-weight: {{ section.settings.subheading_font.weight }};
+    font-size: {{ section.settings.subheading_size }}px;
+    line-height: 1.2;
+    letter-spacing: {{ section.settings.subheading_letter_spacing | divided_by: 1000.0 }}em;
+  }
+
+  #GetRealHero-{{ section.id }} .gr-hero__buttons {
+    margin-top: {{ section.settings.subheading_button_spacing }}px;
+    gap: {{ section.settings.button_gap }}px;
+  }
+
+  #GetRealHero-{{ section.id }} .gr-hero__button {
+    min-width: {{ section.settings.button_width }}px;
+    min-height: {{ section.settings.button_height }}px;
+  }
+
+  @media screen and (max-width: 749px) {
+    #GetRealHero-{{ section.id }},
+    #GetRealHero-{{ section.id }} .gr-hero__outer {
+      min-height: {{ section.settings.mobile_height }}px;
+    }
+
+    #GetRealHero-{{ section.id }} .gr-hero__heading {
+      transform: none;
+      font-size: {{ section.settings.mobile_heading_size }}px;
+    }
+
+    #GetRealHero-{{ section.id }} .gr-hero__subheading {
+      font-size: {{ section.settings.mobile_subheading_size }}px;
+    }
+  }
+{% endstyle %}
+
+<section
+  id="GetRealHero-{{ section.id }}"
+  class="gr-hero gr-hero--{{ section.settings.content_position }}"
+>
+  <div class="gr-hero__media">
+    {% if section.settings.desktop_image != blank %}
+      {{
+        section.settings.desktop_image
+        | image_url: width: 2400
+        | image_tag:
+          class: 'gr-hero__image gr-hero__image--desktop',
+          widths: '750, 1100, 1500, 2000, 2400',
+          sizes: '100vw',
+          loading: 'eager',
+          fetchpriority: 'high'
+      }}
+    {% else %}
+      {{ 'lifestyle-1' | placeholder_svg_tag: 'gr-hero__placeholder' }}
+    {% endif %}
+
+    {% if section.settings.mobile_image != blank %}
+      {{
+        section.settings.mobile_image
+        | image_url: width: 1200
+        | image_tag:
+          class: 'gr-hero__image gr-hero__image--mobile',
+          widths: '375, 550, 750, 900, 1200',
+          sizes: '100vw',
+          loading: 'eager'
+      }}
+    {% endif %}
+  </div>
+
+  <div class="gr-hero__overlay"></div>
+
+  <div class="gr-hero__outer">
+    <div class="gr-hero__inner page-width">
+      <div class="gr-hero__content">
+        {% if section.settings.heading != blank %}
+          <h1 class="gr-hero__heading">
+            {{ section.settings.heading | escape }}
+          </h1>
+        {% endif %}
+
+        {% if section.settings.subheading != blank %}
+          <p class="gr-hero__subheading">
+            {{ section.settings.subheading | escape }}
+          </p>
+        {% endif %}
+
+        {% if section.settings.description != blank %}
+          <div class="gr-hero__description rte">
+            {{ section.settings.description }}
+          </div>
+        {% endif %}
+
+        {% if section.settings.button_one_label != blank or section.settings.button_two_label != blank %}
+          <div class="gr-hero__buttons">
+            {% if section.settings.button_one_label != blank %}
+              <a
+                class="gr-hero__button gr-hero__button--primary"
+                {% if section.settings.button_one_link != blank %}
+                  href="{{ section.settings.button_one_link }}"
+                {% else %}
+                  role="link"
+                  aria-disabled="true"
+                {% endif %}
+              >
+                {{ section.settings.button_one_label | escape }}
+              </a>
+            {% endif %}
+
+            {% if section.settings.button_two_label != blank %}
+              <a
+                class="gr-hero__button gr-hero__button--secondary"
+                {% if section.settings.button_two_link != blank %}
+                  href="{{ section.settings.button_two_link }}"
+                {% else %}
+                  role="link"
+                  aria-disabled="true"
+                {% endif %}
+              >
+                {{ section.settings.button_two_label | escape }}
+              </a>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .gr-hero {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .gr-hero__media,
+  .gr-hero__overlay {
+    position: absolute;
+    inset: 0;
+  }
+
+  .gr-hero__media {
+    z-index: 0;
+  }
+
+  .gr-hero__overlay {
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .gr-hero__image,
+  .gr-hero__placeholder {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .gr-hero__image--mobile {
+    display: none;
+  }
+
+  .gr-hero__outer {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    width: 100%;
+  }
+
+  .gr-hero__inner {
+    display: flex;
+    width: 100%;
+    padding-top: 60px;
+    padding-bottom: 60px;
+  }
+
+  .gr-hero__content {
+    text-align: left;
+  }
+
+  .gr-hero--top-left .gr-hero__inner {
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+
+  .gr-hero--center-left .gr-hero__inner {
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .gr-hero--bottom-left .gr-hero__inner {
+    align-items: flex-end;
+    justify-content: flex-start;
+  }
+
+  .gr-hero--top-center .gr-hero__inner {
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  .gr-hero--center-center .gr-hero__inner {
+    align-items: center;
+    justify-content: center;
+  }
+
+  .gr-hero--bottom-center .gr-hero__inner {
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  .gr-hero--top-center .gr-hero__content,
+  .gr-hero--center-center .gr-hero__content,
+  .gr-hero--bottom-center .gr-hero__content {
+    text-align: center;
+  }
+
+  .gr-hero--top-right .gr-hero__inner {
+    align-items: flex-start;
+    justify-content: flex-end;
+  }
+
+  .gr-hero--center-right .gr-hero__inner {
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  .gr-hero--bottom-right .gr-hero__inner {
+    align-items: flex-end;
+    justify-content: flex-end;
+  }
+
+  .gr-hero--top-right .gr-hero__content,
+  .gr-hero--center-right .gr-hero__content,
+  .gr-hero--bottom-right .gr-hero__content {
+    margin-left: auto;
+    text-align: left;
+  }
+
+  .gr-hero__heading {
+    margin: 0;
+    color: inherit;
+    text-transform: uppercase;
+  }
+
+  .gr-hero__subheading {
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    color: inherit;
+    text-transform: uppercase;
+  }
+
+  .gr-hero__description {
+    max-width: 500px;
+    margin-top: 18px;
+    font-size: 18px;
+    line-height: 1.45;
+  }
+
+  .gr-hero__description p {
+    margin: 0;
+  }
+
+  .gr-hero__buttons {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .gr-hero--top-center .gr-hero__buttons,
+  .gr-hero--center-center .gr-hero__buttons,
+  .gr-hero--bottom-center .gr-hero__buttons {
+    justify-content: center;
+  }
+
+  .gr-hero__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 24px;
+    border: 2px solid #ffffff;
+    border-radius: 0;
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: 0.04em;
+    text-align: center;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition:
+      transform 160ms ease,
+      background-color 160ms ease,
+      color 160ms ease;
+  }
+
+  .gr-hero__button:hover {
+    transform: translateY(-2px);
+  }
+
+  .gr-hero__button--primary {
+    color: #111111;
+    background-color: #ffffff;
+  }
+
+  .gr-hero__button--secondary {
+    color: #ffffff;
+    background-color: transparent;
+  }
+
+  .gr-hero__button--secondary:hover {
+    color: #111111;
+    background-color: #ffffff;
+  }
+
+  @media screen and (max-width: 749px) {
+    .gr-hero__image--desktop {
+      display: none;
+    }
+
+    .gr-hero__image--mobile {
+      display: block;
+    }
+
+    .gr-hero__inner {
+      align-items: flex-end !important;
+      justify-content: flex-start !important;
+      padding-top: 38px;
+      padding-bottom: 38px;
+    }
+
+    .gr-hero__content {
+      width: 100% !important;
+      margin: 0 !important;
+      text-align: left !important;
+    }
+
+    .gr-hero__buttons {
+      display: grid;
+      width: 100%;
+      gap: 12px !important;
+    }
+
+    .gr-hero__button {
+      width: 100%;
+      min-height: 56px !important;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Get Real hero",
+  "tag": "section",
+  "class": "section-get-real-hero",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "desktop_image",
+      "label": "Desktop image"
+    },
+    {
+      "type": "image_picker",
+      "id": "mobile_image",
+      "label": "Mobile image"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "GET REAL."
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "FOR THE REAL ONES."
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Optional description"
+    },
+    {
+      "type": "font_picker",
+      "id": "heading_font",
+      "label": "Heading font",
+      "default": "anton_n4"
+    },
+    {
+      "type": "font_picker",
+      "id": "subheading_font",
+      "label": "Subheading font",
+      "default": "assistant_n7"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 60,
+      "max": 140,
+      "step": 2,
+      "unit": "px",
+      "label": "Heading size",
+      "default": 108
+    },
+    {
+      "type": "range",
+      "id": "mobile_heading_size",
+      "min": 36,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "label": "Mobile heading size",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "heading_line_height",
+      "min": 70,
+      "max": 120,
+      "step": 1,
+      "unit": "%",
+      "label": "Heading line height",
+      "default": 88
+    },
+    {
+      "type": "range",
+      "id": "heading_letter_spacing",
+      "min": -100,
+      "max": 100,
+      "step": 5,
+      "label": "Heading letter spacing",
+      "default": -55
+    },
+    {
+      "type": "range",
+      "id": "subheading_size",
+      "min": 12,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "label": "Subheading size",
+      "default": 22
+    },
+    {
+      "type": "range",
+      "id": "mobile_subheading_size",
+      "min": 10,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile subheading size",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "subheading_letter_spacing",
+      "min": 0,
+      "max": 400,
+      "step": 10,
+      "label": "Subheading letter spacing",
+      "default": 200
+    },
+    {
+      "type": "range",
+      "id": "heading_subheading_spacing",
+      "min": 0,
+      "max": 60,
+      "step": 1,
+      "unit": "px",
+      "label": "Space between heading and tagline",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "subheading_button_spacing",
+      "min": 0,
+      "max": 80,
+      "step": 1,
+      "unit": "px",
+      "label": "Space between tagline and buttons",
+      "default": 30
+    },
+    {
+      "type": "text",
+      "id": "button_one_label",
+      "label": "First button label",
+      "default": "Shop now"
+    },
+    {
+      "type": "url",
+      "id": "button_one_link",
+      "label": "First button link"
+    },
+    {
+      "type": "text",
+      "id": "button_two_label",
+      "label": "Second button label",
+      "default": "Watch"
+    },
+    {
+      "type": "url",
+      "id": "button_two_link",
+      "label": "Second button link"
+    },
+    {
+      "type": "range",
+      "id": "button_width",
+      "min": 140,
+      "max": 300,
+      "step": 5,
+      "unit": "px",
+      "label": "Button width",
+      "default": 190
+    },
+    {
+      "type": "range",
+      "id": "button_height",
+      "min": 44,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "label": "Button height",
+      "default": 54
+    },
+    {
+      "type": "range",
+      "id": "button_gap",
+      "min": 0,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "label": "Space between buttons",
+      "default": 14
+    },
+    {
+      "type": "select",
+      "id": "content_position",
+      "label": "Desktop content position",
+      "default": "center-right",
+      "options": [
+        {
+          "value": "top-left",
+          "label": "Top left"
+        },
+        {
+          "value": "center-left",
+          "label": "Center left"
+        },
+        {
+          "value": "bottom-left",
+          "label": "Bottom left"
+        },
+        {
+          "value": "top-center",
+          "label": "Top center"
+        },
+        {
+          "value": "center-center",
+          "label": "Center"
+        },
+        {
+          "value": "bottom-center",
+          "label": "Bottom center"
+        },
+        {
+          "value": "top-right",
+          "label": "Top right"
+        },
+        {
+          "value": "center-right",
+          "label": "Center right"
+        },
+        {
+          "value": "bottom-right",
+          "label": "Bottom right"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "heading_nudge",
+      "min": -50,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Heading alignment adjustment",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "content_width",
+      "min": 350,
+      "max": 800,
+      "step": 25,
+      "unit": "px",
+      "label": "Content width",
+      "default": 600
+    },
+    {
+      "type": "range",
+      "id": "desktop_height",
+      "min": 450,
+      "max": 950,
+      "step": 25,
+      "unit": "px",
+      "label": "Desktop height",
+      "default": 700
+    },
+    {
+      "type": "range",
+      "id": "mobile_height",
+      "min": 450,
+      "max": 850,
+      "step": 25,
+      "unit": "px",
+      "label": "Mobile height",
+      "default": 650
+    },
+    {
+      "type": "range",
+      "id": "overlay_darkness",
+      "min": 0,
+      "max": 95,
+      "step": 5,
+      "unit": "%",
+      "label": "Image darkness",
+      "default": 35
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Get Real hero"
+    }
+  ]
+}
+{% endschema %}

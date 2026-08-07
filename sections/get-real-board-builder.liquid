@@ -1,0 +1,2457 @@
+{% comment %}
+  GET REAL — BUILD MY BOARD v1.1
+
+  - Six-step skateboard builder
+  - Decks, trucks, wheels, bearings, grip tape and hardware
+  - Pulls products from Shopify collections
+  - Supports product variants
+  - Live build summary and running total
+  - Adds all selected variants through Shopify Ajax Cart API
+  - Truck quantity can default to two
+{% endcomment %}
+
+{% liquid
+  assign decks_collection = section.settings.decks_collection
+  assign trucks_collection = section.settings.trucks_collection
+  assign wheels_collection = section.settings.wheels_collection
+  assign bearings_collection = section.settings.bearings_collection
+  assign grip_collection = section.settings.grip_collection
+  assign hardware_collection = section.settings.hardware_collection
+
+  if decks_collection == blank
+    assign decks_collection = collections['decks']
+  endif
+
+  if trucks_collection == blank
+    assign trucks_collection = collections['trucks']
+  endif
+
+  if wheels_collection == blank
+    assign wheels_collection = collections['wheels']
+  endif
+
+  if bearings_collection == blank
+    assign bearings_collection = collections['bearings']
+  endif
+
+  if grip_collection == blank
+    assign grip_collection = collections['grip-tape']
+  endif
+
+  if hardware_collection == blank
+    assign hardware_collection = collections['hardware']
+  endif
+%}
+
+<section
+  id="GRBoardBuilder-{{ section.id }}"
+  class="gr-builder"
+  data-gr-board-builder
+>
+  <div class="gr-builder__inner page-width">
+
+
+    <div class="gr-builder-launch" data-builder-launch>
+      <div class="gr-builder-launch__intro">
+        <p class="gr-builder__eyebrow">Get Real Setup Builder</p>
+        <h1 class="gr-builder-launch__heading">How do you want to build?</h1>
+        <p class="gr-builder-launch__copy">Go straight to the parts or let us point you toward the right deck size first.</p>
+      </div>
+
+      <div class="gr-builder-launch__paths">
+        <button class="gr-builder-launch__path" type="button" data-builder-direct>
+          <span class="gr-builder-launch__path-kicker">Fast track</span>
+          <strong>I know what I want</strong>
+          <span>Start with decks and build it step by step.</span>
+          <b>Start building →</b>
+        </button>
+
+        <button class="gr-builder-launch__path gr-builder-launch__path--accent" type="button" data-builder-guided-open>
+          <span class="gr-builder-launch__path-kicker">First setup?</span>
+          <strong>Not sure where to start?</strong>
+          <span>Answer three quick questions and get the same kind of guidance we’d give you in the shop.</span>
+          <b>Help me choose →</b>
+        </button>
+      </div>
+
+      <div class="gr-builder-guide" data-builder-guide hidden>
+        <div class="gr-builder-guide__top">
+          <div>
+            <p class="gr-builder__eyebrow">Get Real setup help</p>
+            <h2>Let’s build your first setup.</h2>
+            <p class="gr-builder-guide__intro">This takes about 30 seconds. We’ll ask the same three questions we’d ask you in the shop.</p>
+          </div>
+          <button type="button" class="gr-builder-guide__cancel" data-builder-guide-cancel>Back</button>
+        </div>
+
+        <div class="gr-builder-guide__questions">
+          <fieldset class="gr-builder-guide__question">
+            <legend>What’s your experience level?</legend>
+            <label><input type="radio" name="gr-experience-{{ section.id }}" value="new" checked><span>Never skated</span></label>
+            <label><input type="radio" name="gr-experience-{{ section.id }}" value="beginner"><span>Beginner</span></label>
+            <label><input type="radio" name="gr-experience-{{ section.id }}" value="intermediate"><span>Intermediate</span></label>
+            <label><input type="radio" name="gr-experience-{{ section.id }}" value="advanced"><span>Advanced</span></label>
+          </fieldset>
+
+          <fieldset class="gr-builder-guide__question">
+            <legend>What kind of skating are you most interested in?</legend>
+            <label><input type="radio" name="gr-style-{{ section.id }}" value="street" checked><span>Street</span></label>
+            <label><input type="radio" name="gr-style-{{ section.id }}" value="park"><span>Park</span></label>
+            <label><input type="radio" name="gr-style-{{ section.id }}" value="transition"><span>Transition</span></label>
+            <label><input type="radio" name="gr-style-{{ section.id }}" value="all"><span>Everything</span></label>
+          </fieldset>
+
+          <div class="gr-builder-guide__question gr-builder-guide__question--shoe">
+            <label for="GRShoeSize-{{ section.id }}">What’s your shoe size?</label>
+            <select id="GRShoeSize-{{ section.id }}" data-guide-shoe>
+              <option value="small">6.5 or smaller</option>
+              <option value="medium">7–9</option>
+              <option value="large" selected>9.5–11</option>
+              <option value="xlarge">11.5–13</option>
+              <option value="xxlarge">13+</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="gr-builder-guide__submit" type="button" data-builder-guide-submit>Get my recommendation →</button>
+      </div>
+
+      <div class="gr-builder-recommendation" data-builder-recommendation hidden>
+        <button type="button" class="gr-builder-recommendation__back" data-builder-recommendation-back>← Change my answers</button>
+        <div class="gr-builder-recommendation__card">
+          <p class="gr-builder__eyebrow">Your Get Real recommendation</p>
+          <p class="gr-builder-recommendation__lead">Based on your answers, we’d start you on:</p>
+          <h2 data-builder-recommendation-range><span>8.25</span><b aria-hidden="true">–</b><span>8.5</span></h2>
+          <div class="gr-builder-recommendation__reason">
+            <strong data-builder-recommendation-primary>Our pick: 8.25</strong>
+            <p data-builder-recommendation-copy>It gives you a great balance of control, stability, and room to progress.</p>
+          </div>
+          <div class="gr-builder-recommendation__options">
+            <button type="button" class="gr-builder-recommendation__option gr-builder-recommendation__option--primary" data-builder-recommendation-choice="primary">
+              <span data-builder-recommendation-primary-button>Start building an 8.25</span>
+              <small>More responsive and versatile</small>
+            </button>
+            <button type="button" class="gr-builder-recommendation__option" data-builder-recommendation-choice="secondary">
+              <span data-builder-recommendation-secondary-button>Show me 8.5 instead</span>
+              <small>More stability and room underfoot</small>
+            </button>
+          </div>
+          <button type="button" class="gr-builder-recommendation__all" data-builder-recommendation-all>Browse all deck sizes</button>
+          <div class="gr-builder-recommendation__crew">
+            <strong>Recommended by the Get Real Crew</strong>
+            <span>Based on the same questions we’d ask if you walked into the shop.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="gr-builder-app" data-builder-app hidden>
+    <header class="gr-builder__header">
+      {% if section.settings.eyebrow != blank %}
+        <p class="gr-builder__eyebrow">
+          {{ section.settings.eyebrow | escape }}
+        </p>
+      {% endif %}
+
+      {% if section.settings.heading != blank %}
+        <h1 class="gr-builder__heading">
+          {{ section.settings.heading | escape }}
+        </h1>
+      {% endif %}
+
+      {% if section.settings.description != blank %}
+        <p class="gr-builder__description">
+          {{ section.settings.description | escape }}
+        </p>
+      {% endif %}
+    </header>
+
+    <div class="gr-builder__progress" aria-label="Build progress">
+      <div class="gr-builder__stepper" data-builder-stepper>
+        {% assign builder_step_labels = 'Deck,Trucks,Wheels,Bearings,Grip,Hardware' | split: ',' %}
+        {% for builder_step_label in builder_step_labels %}
+          <button
+            class="gr-builder__stepper-item{% if forloop.first %} is-active{% endif %}"
+            type="button"
+            data-builder-step-jump="{{ forloop.index0 }}"
+            {% unless forloop.first %}disabled{% endunless %}
+          >
+            <span class="gr-builder__stepper-dot" aria-hidden="true">
+              <span class="gr-builder__stepper-number">{{ forloop.index }}</span>
+              <span class="gr-builder__stepper-check">✓</span>
+            </span>
+            <span class="gr-builder__stepper-label">{{ builder_step_label }}</span>
+          </button>
+        {% endfor %}
+      </div>
+      <div class="gr-builder__progress-track">
+        <span class="gr-builder__progress-fill" data-builder-progress-fill></span>
+      </div>
+      <div class="gr-builder__progress-copy">
+        <span data-builder-step-count>Step 1 of 6</span>
+        <span data-builder-progress-label>Choose your deck</span>
+      </div>
+    </div>
+
+    <div class="gr-builder__layout">
+
+      <main class="gr-builder__main">
+
+        {% comment %}
+          STEP 1 — DECKS
+        {% endcomment %}
+        <section
+          class="gr-builder-step is-active"
+          data-builder-step="0"
+          data-step-name="Deck"
+          data-step-heading="Choose your deck"
+        >
+          <div class="gr-builder-step__header">
+            <div>
+              <p class="gr-builder-step__number">Step 1</p>
+              <h2 class="gr-builder-step__heading">Choose your deck</h2>
+              <p class="gr-builder-step__copy">
+                Start with the deck you want. We’ll build everything else around it.
+              </p>
+              <div class="gr-builder-deck-guide" data-deck-guide hidden>
+                <strong data-deck-guide-title></strong>
+                <span data-deck-guide-copy></span>
+              </div>
+            </div>
+
+            <div class="gr-builder-search">
+              <label
+                class="visually-hidden"
+                for="GRDeckSearch-{{ section.id }}"
+              >
+                Search decks
+              </label>
+
+              <input
+                id="GRDeckSearch-{{ section.id }}"
+                class="gr-builder-search__input"
+                type="search"
+                placeholder="Search decks"
+                data-builder-search
+              >
+            </div>
+          </div>
+
+          <div class="gr-builder-products" data-builder-products>
+            {% if decks_collection != blank and decks_collection.products_count > 0 %}
+              {% for product in decks_collection.products limit: section.settings.products_per_step %}
+                {% render 'gr-builder-product-card',
+                  card_product: product,
+                  step_key: 'deck',
+                  step_label: 'Deck',
+                  default_quantity: 1
+                %}
+              {% endfor %}
+            {% else %}
+              <div class="gr-builder-empty">
+                <h3>Deck collection not connected</h3>
+                <p>Select your Decks collection inside the section settings.</p>
+              </div>
+            {% endif %}
+          </div>
+        </section>
+
+        {% comment %}
+          STEP 2 — TRUCKS
+        {% endcomment %}
+        <section
+          class="gr-builder-step"
+          data-builder-step="1"
+          data-step-name="Trucks"
+          data-step-heading="Choose your trucks"
+          hidden
+        >
+          <div class="gr-builder-step__header">
+            <div>
+              <p class="gr-builder-step__number">Step 2</p>
+              <h2 class="gr-builder-step__heading">Choose your trucks</h2>
+              <p class="gr-builder-step__copy">
+                Truck prices may be listed individually. This builder will add
+                {{ section.settings.truck_quantity }} to the cart.
+              </p>
+              <div class="gr-builder-truck-guide" data-truck-guide hidden>
+                Recommended sizes for your <strong data-truck-guide-width></strong> deck:
+                <span data-truck-guide-sizes></span>
+              </div>
+            </div>
+
+            <div class="gr-builder-search">
+              <label
+                class="visually-hidden"
+                for="GRTruckSearch-{{ section.id }}"
+              >
+                Search trucks
+              </label>
+
+              <input
+                id="GRTruckSearch-{{ section.id }}"
+                class="gr-builder-search__input"
+                type="search"
+                placeholder="Search trucks"
+                data-builder-search
+              >
+            </div>
+          </div>
+
+          <div class="gr-builder-products" data-builder-products>
+            {% if trucks_collection != blank and trucks_collection.products_count > 0 %}
+              {% for product in trucks_collection.products limit: section.settings.products_per_step %}
+                {% render 'gr-builder-product-card',
+                  card_product: product,
+                  step_key: 'trucks',
+                  step_label: 'Trucks',
+                  default_quantity: section.settings.truck_quantity
+                %}
+              {% endfor %}
+            {% else %}
+              <div class="gr-builder-empty">
+                <h3>Truck collection not connected</h3>
+                <p>Select your Trucks collection inside the section settings.</p>
+              </div>
+            {% endif %}
+          </div>
+        </section>
+
+        {% comment %}
+          STEP 3 — WHEELS
+        {% endcomment %}
+        <section
+          class="gr-builder-step"
+          data-builder-step="2"
+          data-step-name="Wheels"
+          data-step-heading="Choose your wheels"
+          hidden
+        >
+          <div class="gr-builder-step__header">
+            <div>
+              <p class="gr-builder-step__number">Step 3</p>
+              <h2 class="gr-builder-step__heading">Choose your wheels</h2>
+              <p class="gr-builder-step__copy">
+                Choose the wheel size, hardness and shape that match how you skate.
+              </p>
+            </div>
+
+            <div class="gr-builder-search">
+              <label
+                class="visually-hidden"
+                for="GRWheelSearch-{{ section.id }}"
+              >
+                Search wheels
+              </label>
+
+              <input
+                id="GRWheelSearch-{{ section.id }}"
+                class="gr-builder-search__input"
+                type="search"
+                placeholder="Search wheels"
+                data-builder-search
+              >
+            </div>
+          </div>
+
+          <div class="gr-builder-products" data-builder-products>
+            {% if wheels_collection != blank and wheels_collection.products_count > 0 %}
+              {% for product in wheels_collection.products limit: section.settings.products_per_step %}
+                {% render 'gr-builder-product-card',
+                  card_product: product,
+                  step_key: 'wheels',
+                  step_label: 'Wheels',
+                  default_quantity: 1
+                %}
+              {% endfor %}
+            {% else %}
+              <div class="gr-builder-empty">
+                <h3>Wheel collection not connected</h3>
+                <p>Select your Wheels collection inside the section settings.</p>
+              </div>
+            {% endif %}
+          </div>
+        </section>
+
+        {% comment %}
+          STEP 4 — BEARINGS
+        {% endcomment %}
+        <section
+          class="gr-builder-step"
+          data-builder-step="3"
+          data-step-name="Bearings"
+          data-step-heading="Choose your bearings"
+          hidden
+        >
+          <div class="gr-builder-step__header">
+            <div>
+              <p class="gr-builder-step__number">Step 4</p>
+              <h2 class="gr-builder-step__heading">Choose your bearings</h2>
+              <p class="gr-builder-step__copy">
+                Every skateboard needs one complete set of eight bearings.
+              </p>
+            </div>
+
+            <div class="gr-builder-search">
+              <label
+                class="visually-hidden"
+                for="GRBearingSearch-{{ section.id }}"
+              >
+                Search bearings
+              </label>
+
+              <input
+                id="GRBearingSearch-{{ section.id }}"
+                class="gr-builder-search__input"
+                type="search"
+                placeholder="Search bearings"
+                data-builder-search
+              >
+            </div>
+          </div>
+
+          <div class="gr-builder-products" data-builder-products>
+            {% if bearings_collection != blank and bearings_collection.products_count > 0 %}
+              {% for product in bearings_collection.products limit: section.settings.products_per_step %}
+                {% render 'gr-builder-product-card',
+                  card_product: product,
+                  step_key: 'bearings',
+                  step_label: 'Bearings',
+                  default_quantity: 1
+                %}
+              {% endfor %}
+            {% else %}
+              <div class="gr-builder-empty">
+                <h3>Bearing collection not connected</h3>
+                <p>Select your Bearings collection inside the section settings.</p>
+              </div>
+            {% endif %}
+          </div>
+        </section>
+
+        {% comment %}
+          STEP 5 — GRIP TAPE
+        {% endcomment %}
+        <section
+          class="gr-builder-step"
+          data-builder-step="4"
+          data-step-name="Grip Tape"
+          data-step-heading="Choose your grip tape"
+          hidden
+        >
+          <div class="gr-builder-step__header">
+            <div>
+              <p class="gr-builder-step__number">Step 5</p>
+              <h2 class="gr-builder-step__heading">Choose your grip tape</h2>
+              <p class="gr-builder-step__copy">
+                Pick classic black grip or add some personality to the top of your board.
+              </p>
+            </div>
+
+            <div class="gr-builder-search">
+              <label
+                class="visually-hidden"
+                for="GRGripSearch-{{ section.id }}"
+              >
+                Search grip tape
+              </label>
+
+              <input
+                id="GRGripSearch-{{ section.id }}"
+                class="gr-builder-search__input"
+                type="search"
+                placeholder="Search grip tape"
+                data-builder-search
+              >
+            </div>
+          </div>
+
+          <div class="gr-builder-products" data-builder-products>
+            {% if grip_collection != blank and grip_collection.products_count > 0 %}
+              {% for product in grip_collection.products limit: section.settings.products_per_step %}
+                {% render 'gr-builder-product-card',
+                  card_product: product,
+                  step_key: 'grip',
+                  step_label: 'Grip Tape',
+                  default_quantity: 1
+                %}
+              {% endfor %}
+            {% else %}
+              <div class="gr-builder-empty">
+                <h3>Grip Tape collection not connected</h3>
+                <p>Select your Grip Tape collection inside the section settings.</p>
+              </div>
+            {% endif %}
+          </div>
+        </section>
+
+        {% comment %}
+          STEP 6 — HARDWARE
+        {% endcomment %}
+        <section
+          class="gr-builder-step"
+          data-builder-step="5"
+          data-step-name="Hardware"
+          data-step-heading="Choose your hardware"
+          hidden
+        >
+          <div class="gr-builder-step__header">
+            <div>
+              <p class="gr-builder-step__number">Step 6</p>
+              <h2 class="gr-builder-step__heading">Choose your hardware</h2>
+              <p class="gr-builder-step__copy">
+                Finish the setup with hardware to mount the trucks to your deck.
+              </p>
+            </div>
+
+            <div class="gr-builder-search">
+              <label
+                class="visually-hidden"
+                for="GRHardwareSearch-{{ section.id }}"
+              >
+                Search hardware
+              </label>
+
+              <input
+                id="GRHardwareSearch-{{ section.id }}"
+                class="gr-builder-search__input"
+                type="search"
+                placeholder="Search hardware"
+                data-builder-search
+              >
+            </div>
+          </div>
+
+          <div class="gr-builder-products" data-builder-products>
+            {% if hardware_collection != blank and hardware_collection.products_count > 0 %}
+              {% for product in hardware_collection.products limit: section.settings.products_per_step %}
+                {% render 'gr-builder-product-card',
+                  card_product: product,
+                  step_key: 'hardware',
+                  step_label: 'Hardware',
+                  default_quantity: 1
+                %}
+              {% endfor %}
+            {% else %}
+              <div class="gr-builder-empty">
+                <h3>Hardware collection not connected</h3>
+                <p>Select your Hardware collection inside the section settings.</p>
+              </div>
+            {% endif %}
+          </div>
+        </section>
+
+        <div class="gr-builder__navigation gr-builder__navigation--sticky">
+          <button
+            class="gr-builder__nav-button gr-builder__nav-button--back"
+            type="button"
+            data-builder-back
+            disabled
+          >
+            <span aria-hidden="true">←</span>
+            Back
+          </button>
+
+          <button
+            class="gr-builder__nav-button gr-builder__nav-button--next"
+            type="button"
+            data-builder-next
+            disabled
+          >
+            Next step
+            <span aria-hidden="true">→</span>
+          </button>
+        </div>
+
+      </main>
+
+      <aside class="gr-builder-summary">
+        <div class="gr-builder-summary__sticky">
+          <div class="gr-builder-summary__header">
+            <p class="gr-builder-summary__eyebrow">Live build</p>
+            <h2 class="gr-builder-summary__heading">Your setup</h2>
+          </div>
+
+          <div class="gr-builder-summary__items">
+
+            {% assign summary_steps = 'deck,trucks,wheels,bearings,grip,hardware' | split: ',' %}
+            {% assign summary_labels = 'Deck,Trucks,Wheels,Bearings,Grip Tape,Hardware' | split: ',' %}
+
+            {% for summary_step in summary_steps %}
+              <div
+                class="gr-builder-summary-item"
+                data-summary-item="{{ summary_step }}"
+              >
+                <div class="gr-builder-summary-item__image-wrap">
+                  <img
+                    class="gr-builder-summary-item__image"
+                    src=""
+                    alt=""
+                    width="64"
+                    height="64"
+                    loading="lazy"
+                    data-summary-image
+                    hidden
+                  >
+
+                  <span
+                    class="gr-builder-summary-item__placeholder"
+                    data-summary-placeholder
+                  >
+                    {{ forloop.index }}
+                  </span>
+                </div>
+
+                <div class="gr-builder-summary-item__content">
+                  <span class="gr-builder-summary-item__label">
+                    {{ summary_labels[forloop.index0] }}
+                  </span>
+
+                  <strong
+                    class="gr-builder-summary-item__title"
+                    data-summary-title
+                  >
+                    Not selected
+                  </strong>
+
+                  <span
+                    class="gr-builder-summary-item__variant"
+                    data-summary-variant
+                  ></span>
+                </div>
+
+                <button
+                  class="gr-builder-summary-item__change"
+                  type="button"
+                  data-summary-change="{{ forloop.index0 }}"
+                  hidden
+                >
+                  Change
+                </button>
+              </div>
+            {% endfor %}
+
+          </div>
+
+          <div class="gr-builder-summary__total">
+            <span>Total</span>
+            <strong data-builder-total>
+              {{ 0 | money }}
+            </strong>
+          </div>
+
+          <p class="gr-builder-summary__truck-note">
+            Truck total reflects a quantity of
+            {{ section.settings.truck_quantity }}.
+          </p>
+
+          <button
+            class="gr-builder-summary__add"
+            type="button"
+            data-builder-add-all
+            disabled
+          >
+            <span data-builder-add-label>Add complete setup</span>
+            <span aria-hidden="true">→</span>
+          </button>
+
+          <div
+            class="gr-builder-summary__message"
+            role="status"
+            aria-live="polite"
+            data-builder-message
+          ></div>
+        </div>
+      </aside>
+
+    </div>
+  </div>
+    </div>
+
+  <div
+    class="gr-builder-modal"
+    data-builder-modal
+    aria-hidden="true"
+    hidden
+  >
+    <button
+      class="gr-builder-modal__backdrop"
+      type="button"
+      aria-label="Close product details"
+      data-builder-modal-close
+    ></button>
+
+    <div
+      class="gr-builder-modal__dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="GRBuilderModalTitle-{{ section.id }}"
+    >
+      <button
+        class="gr-builder-modal__x"
+        type="button"
+        aria-label="Close product details"
+        data-builder-modal-close
+      >
+        <span aria-hidden="true">×</span>
+      </button>
+
+      <div class="gr-builder-modal__media">
+        <div class="gr-builder-modal__main-image-wrap">
+          <button
+            class="gr-builder-modal__arrow gr-builder-modal__arrow--previous"
+            type="button"
+            aria-label="Previous image"
+            data-builder-modal-previous
+          >
+            <span aria-hidden="true">‹</span>
+          </button>
+
+          <img
+            class="gr-builder-modal__main-image"
+            src=""
+            alt=""
+            width="900"
+            height="900"
+            data-builder-modal-image
+          >
+
+          <button
+            class="gr-builder-modal__arrow gr-builder-modal__arrow--next"
+            type="button"
+            aria-label="Next image"
+            data-builder-modal-next
+          >
+            <span aria-hidden="true">›</span>
+          </button>
+        </div>
+
+        <div
+          class="gr-builder-modal__thumbnails"
+          data-builder-modal-thumbnails
+        ></div>
+      </div>
+
+      <div class="gr-builder-modal__content">
+        <p class="gr-builder-modal__vendor" data-builder-modal-vendor></p>
+
+        <h2
+          id="GRBuilderModalTitle-{{ section.id }}"
+          class="gr-builder-modal__title"
+          data-builder-modal-title
+        ></h2>
+
+        <div class="gr-builder-modal__price-row">
+          <strong class="gr-builder-modal__price" data-builder-modal-price></strong>
+          <span class="gr-builder-modal__quantity" data-builder-modal-quantity></span>
+        </div>
+
+        <div class="gr-builder-modal__facts">
+          <div class="gr-builder-modal__fact" data-builder-modal-variant-wrap>
+            <span class="gr-builder-modal__fact-label">Selected option</span>
+            <strong data-builder-modal-variant></strong>
+          </div>
+
+          <div class="gr-builder-modal__fact" data-builder-modal-recommendation-wrap hidden>
+            <span class="gr-builder-modal__fact-label">Recommended for your deck</span>
+            <strong data-builder-modal-recommendation></strong>
+          </div>
+        </div>
+
+        <p class="gr-builder-modal__description" data-builder-modal-description></p>
+
+        <button
+          class="gr-builder-modal__choose-button"
+          type="button"
+          data-builder-modal-choose
+        >
+          Choose this
+        </button>
+
+        <a
+          class="gr-builder-modal__product-link"
+          href="#"
+          target="_blank"
+          rel="noopener"
+          data-builder-modal-product-link
+        >
+          View product page ↗
+        </a>
+
+        <button
+          class="gr-builder-modal__close-button"
+          type="button"
+          data-builder-modal-close
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+{% style %}
+  #GRBoardBuilder-{{ section.id }} {
+    --gr-builder-bg: {{ section.settings.background_color }};
+    --gr-builder-text: {{ section.settings.text_color }};
+    --gr-builder-muted: {{ section.settings.muted_text_color }};
+    --gr-builder-card: {{ section.settings.card_background }};
+    --gr-builder-card-border: {{ section.settings.card_border_color }};
+    --gr-builder-summary: {{ section.settings.summary_background }};
+    --gr-builder-summary-text: {{ section.settings.summary_text_color }};
+    --gr-builder-accent: {{ section.settings.accent_color }};
+    --gr-builder-button-text: {{ section.settings.button_text_color }};
+
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+    color: var(--gr-builder-text);
+    background: var(--gr-builder-bg);
+  }
+
+  #GRBoardBuilder-{{ section.id }} .gr-builder__heading {
+    font-size: {{ section.settings.heading_size }}px;
+  }
+
+  #GRBoardBuilder-{{ section.id }} .gr-builder-products {
+    grid-template-columns: repeat(
+      {{ section.settings.desktop_columns }},
+      minmax(0, 1fr)
+    );
+  }
+
+  @media screen and (max-width: 749px) {
+    #GRBoardBuilder-{{ section.id }} {
+      padding-top: {{ section.settings.mobile_padding_top }}px;
+      padding-bottom: {{ section.settings.mobile_padding_bottom }}px;
+    }
+
+    #GRBoardBuilder-{{ section.id }} .gr-builder__heading {
+      font-size: {{ section.settings.mobile_heading_size }}px;
+    }
+
+    #GRBoardBuilder-{{ section.id }} .gr-builder-products {
+      grid-template-columns: repeat(
+        {{ section.settings.mobile_columns }},
+        minmax(0, 1fr)
+      );
+    }
+  }
+{% endstyle %}
+
+{% stylesheet %}
+  .gr-builder {
+    width: 100%;
+  }
+
+  .gr-builder__header {
+    max-width: 900px;
+    margin-bottom: 36px;
+  }
+
+  .gr-builder__eyebrow {
+    margin: 0 0 14px;
+    color: var(--gr-builder-accent);
+    font-size: 12px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .gr-builder__heading {
+    margin: 0;
+    color: inherit;
+    font-weight: 900;
+    line-height: 0.92;
+    letter-spacing: -0.045em;
+    text-transform: uppercase;
+  }
+
+  .gr-builder__description {
+    max-width: 680px;
+    margin: 20px 0 0;
+    color: var(--gr-builder-muted);
+    font-size: 17px;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  .gr-builder__progress {
+    margin-bottom: 32px;
+  }
+
+  .gr-builder__progress-track {
+    width: 100%;
+    height: 5px;
+    overflow: hidden;
+    background: var(--gr-builder-card-border);
+  }
+
+  .gr-builder__progress-fill {
+    display: block;
+    width: 16.6667%;
+    height: 100%;
+    background: var(--gr-builder-accent);
+    transition: width 240ms ease;
+  }
+
+  .gr-builder__progress-copy {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    margin-top: 11px;
+    color: var(--gr-builder-muted);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .gr-builder__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    align-items: start;
+    gap: 32px;
+  }
+
+  .gr-builder__main {
+    min-width: 0;
+  }
+
+  .gr-builder-step[hidden] {
+    display: none;
+  }
+
+  .gr-builder-step__header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 30px;
+    margin-bottom: 24px;
+  }
+
+  .gr-builder-step__number {
+    margin: 0 0 9px;
+    color: var(--gr-builder-accent);
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .gr-builder-step__heading {
+    margin: 0;
+    color: inherit;
+    font-size: 34px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.035em;
+    text-transform: uppercase;
+  }
+
+  .gr-builder-step__copy {
+    max-width: 620px;
+    margin: 12px 0 0;
+    color: var(--gr-builder-muted);
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .gr-builder-search {
+    flex: 0 0 240px;
+  }
+
+  .gr-builder-search__input {
+    width: 100%;
+    height: 48px;
+    padding: 0 16px;
+    color: var(--gr-builder-text);
+    background: var(--gr-builder-bg);
+    border: 1px solid var(--gr-builder-card-border);
+    border-radius: 0;
+    box-shadow: none;
+    font: inherit;
+    font-size: 14px;
+  }
+
+  .gr-builder-search__input:focus {
+    border-color: var(--gr-builder-accent);
+    outline: 2px solid transparent;
+  }
+
+  .gr-builder-products {
+    display: grid;
+    gap: 14px;
+  }
+
+  .gr-builder-product {
+    position: relative;
+    min-width: 0;
+    overflow: hidden;
+    background: var(--gr-builder-card);
+    border: 1px solid var(--gr-builder-card-border);
+    transition:
+      border-color 180ms ease,
+      transform 180ms ease,
+      box-shadow 180ms ease;
+  }
+
+  .gr-builder-product:hover {
+    border-color: var(--gr-builder-accent);
+    transform: translateY(-2px);
+  }
+
+  .gr-builder-product.is-selected {
+    border: 2px solid var(--gr-builder-accent);
+    box-shadow: inset 0 0 0 2px var(--gr-builder-bg);
+  }
+
+  .gr-builder-product__image-wrap {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    aspect-ratio: 1 / 1;
+    background: #f6f6f6;
+  }
+
+  .gr-builder-product__image,
+  .gr-builder-product__placeholder {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .gr-builder-product__image {
+    padding: 12px;
+    transition: transform 260ms ease;
+  }
+
+  .gr-builder-product:hover .gr-builder-product__image {
+    transform: scale(1.035);
+  }
+
+  .gr-builder-product__badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 2;
+    padding: 7px 9px;
+    color: #ffffff;
+    background: #111111;
+    font-size: 10px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .gr-builder-product__body {
+    padding: 15px;
+  }
+
+  .gr-builder-product__vendor {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--gr-builder-muted);
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+  }
+
+  .gr-builder-product__title {
+    margin: 0;
+    color: inherit;
+    font-size: 15px;
+    font-weight: 800;
+    line-height: 1.25;
+  }
+
+  .gr-builder-product__price {
+    display: block;
+    margin-top: 8px;
+    color: inherit;
+    font-size: 14px;
+    font-weight: 800;
+  }
+
+  .gr-builder-product__variant-wrap {
+    margin-top: 12px;
+  }
+
+  .gr-builder-product__variant-label {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--gr-builder-muted);
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .gr-builder-product__variant {
+    width: 100%;
+    height: 42px;
+    padding: 0 34px 0 12px;
+    color: var(--gr-builder-text);
+    background: var(--gr-builder-bg);
+    border: 1px solid var(--gr-builder-card-border);
+    border-radius: 0;
+    font: inherit;
+    font-size: 12px;
+  }
+
+  .gr-builder-product__select {
+    display: flex;
+    width: 100%;
+    min-height: 45px;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 12px;
+    padding: 10px 13px;
+    color: var(--gr-builder-button-text);
+    background: var(--gr-builder-accent);
+    border: 2px solid var(--gr-builder-accent);
+    font: inherit;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition:
+      color 180ms ease,
+      background 180ms ease;
+  }
+
+  .gr-builder-product__select:hover {
+    color: var(--gr-builder-accent);
+    background: transparent;
+  }
+
+  .gr-builder-product.is-selected .gr-builder-product__select {
+    color: #ffffff;
+    background: #111111;
+    border-color: #111111;
+  }
+
+  .gr-builder-product__select[disabled] {
+    cursor: not-allowed;
+    opacity: 0.45;
+  }
+
+  .gr-builder-empty {
+    grid-column: 1 / -1;
+    padding: 40px;
+    text-align: center;
+    border: 1px solid var(--gr-builder-card-border);
+  }
+
+  .gr-builder-empty h3 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+
+  .gr-builder-empty p {
+    margin: 10px 0 0;
+    color: var(--gr-builder-muted);
+  }
+
+  .gr-builder__navigation {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 28px;
+  }
+
+  .gr-builder__nav-button {
+    display: inline-flex;
+    min-height: 52px;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 13px 24px;
+    border: 2px solid var(--gr-builder-text);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .gr-builder__nav-button--back {
+    color: var(--gr-builder-text);
+    background: transparent;
+  }
+
+  .gr-builder__nav-button--next {
+    margin-left: 0;
+    color: var(--gr-builder-bg);
+    background: var(--gr-builder-text);
+  }
+
+  .gr-builder__nav-button[disabled] {
+    cursor: not-allowed;
+    opacity: 0.35;
+  }
+
+  .gr-builder-summary {
+    min-width: 0;
+    color: var(--gr-builder-summary-text);
+  }
+
+  .gr-builder-summary__sticky {
+    position: sticky;
+    top: 24px;
+    padding: 26px;
+    background: var(--gr-builder-summary);
+  }
+
+  .gr-builder-summary__header {
+    padding-bottom: 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  .gr-builder-summary__eyebrow {
+    margin: 0 0 8px;
+    color: var(--gr-builder-accent);
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .gr-builder-summary__heading {
+    margin: 0;
+    color: inherit;
+    font-size: 28px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.035em;
+    text-transform: uppercase;
+  }
+
+  .gr-builder-summary__items {
+    padding: 8px 0;
+  }
+
+  .gr-builder-summary-item {
+    display: grid;
+    grid-template-columns: 50px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    min-height: 70px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .gr-builder-summary-item__image-wrap {
+    display: flex;
+    width: 50px;
+    height: 50px;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: #ffffff;
+  }
+
+  .gr-builder-summary-item__image {
+    width: 100%;
+    height: 100%;
+    padding: 4px;
+    object-fit: contain;
+  }
+
+  .gr-builder-summary-item__placeholder {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.45);
+    background: rgba(255, 255, 255, 0.08);
+    font-size: 13px;
+    font-weight: 900;
+  }
+
+  .gr-builder-summary-item__content {
+    min-width: 0;
+  }
+
+  .gr-builder-summary-item__label {
+    display: block;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+  }
+
+  .gr-builder-summary-item__title {
+    display: block;
+    overflow: hidden;
+    margin-top: 3px;
+    color: inherit;
+    font-size: 12px;
+    line-height: 1.3;
+    text-overflow: ellipsis;
+  }
+
+  .gr-builder-summary-item__variant {
+    display: block;
+    overflow: hidden;
+    margin-top: 2px;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 10px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .gr-builder-summary-item__change {
+    padding: 0;
+    color: var(--gr-builder-accent);
+    background: transparent;
+    border: 0;
+    font: inherit;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .gr-builder-summary__total {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 20px 0 12px;
+    color: inherit;
+    font-size: 18px;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+
+  .gr-builder-summary__truck-note {
+    margin: 0 0 16px;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 10px;
+    line-height: 1.4;
+  }
+
+  .gr-builder-summary__add {
+    display: flex;
+    width: 100%;
+    min-height: 54px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 18px;
+    color: var(--gr-builder-button-text);
+    background: var(--gr-builder-accent);
+    border: 2px solid var(--gr-builder-accent);
+    font: inherit;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .gr-builder-summary__add[disabled] {
+    cursor: not-allowed;
+    opacity: 0.4;
+  }
+
+  .gr-builder-summary__message {
+    min-height: 20px;
+    margin-top: 12px;
+    color: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.4;
+  }
+
+  .gr-builder-product[hidden] {
+    display: none;
+  }
+
+  @media screen and (max-width: 1100px) {
+    .gr-builder__layout {
+      grid-template-columns: minmax(0, 1fr) 320px;
+      gap: 22px;
+    }
+  }
+
+  @media screen and (max-width: 989px) {
+    .gr-builder__layout {
+      grid-template-columns: 1fr;
+    }
+
+    .gr-builder-summary {
+      order: -1;
+    }
+
+    .gr-builder-summary__sticky {
+      position: static;
+    }
+
+    .gr-builder-summary__items {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .gr-builder-summary-item {
+      display: block;
+      min-width: 0;
+      padding: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .gr-builder-summary-item__image-wrap {
+      width: 100%;
+      height: 90px;
+      margin-bottom: 8px;
+    }
+
+    .gr-builder-summary-item__change {
+      margin-top: 7px;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .gr-builder__header {
+      margin-bottom: 28px;
+    }
+
+    .gr-builder__stepper{display:flex;gap:14px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none}
+    .gr-builder__stepper::-webkit-scrollbar{display:none}
+    .gr-builder__stepper-item{flex:0 0 auto}
+    .gr-builder__progress-copy {
+      display: block;
+    }
+
+    .gr-builder__progress-copy span {
+      display: block;
+    }
+
+    .gr-builder__progress-copy span + span {
+      margin-top: 4px;
+    }
+
+    .gr-builder-step__header {
+      display: block;
+    }
+
+    .gr-builder-search {
+      margin-top: 18px;
+    }
+
+    .gr-builder-step__heading {
+      font-size: 28px;
+    }
+
+    .gr-builder-product__body {
+      padding: 12px;
+    }
+
+    .gr-builder-product__title {
+      font-size: 13px;
+    }
+
+    .gr-builder-product__image {
+      padding: 8px;
+    }
+
+    .gr-builder-summary__items {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .gr-builder-summary__sticky {
+      padding: 20px;
+    }
+
+    .gr-builder__nav-button {
+      flex: 1 1 50%;
+      padding-right: 14px;
+      padding-left: 14px;
+    }
+  }
+
+
+  .gr-builder__stepper{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin-bottom:18px}
+  .gr-builder__stepper-item{display:flex;min-width:0;align-items:center;gap:9px;padding:0;color:var(--gr-builder-muted);background:transparent;border:0;font:inherit;text-align:left;cursor:pointer}
+  .gr-builder__stepper-item:disabled{cursor:default}
+  .gr-builder__stepper-dot{display:inline-flex;width:28px;height:28px;flex:0 0 28px;align-items:center;justify-content:center;border:2px solid var(--gr-builder-card-border);border-radius:50%;font-size:10px;font-weight:900}
+  .gr-builder__stepper-check{display:none}
+  .gr-builder__stepper-item.is-active{color:var(--gr-builder-text)}
+  .gr-builder__stepper-item.is-active .gr-builder__stepper-dot,.gr-builder__stepper-item.is-complete .gr-builder__stepper-dot{color:var(--gr-builder-button-text);background:var(--gr-builder-accent);border-color:var(--gr-builder-accent)}
+  .gr-builder__stepper-item.is-complete .gr-builder__stepper-number{display:none}
+  .gr-builder__stepper-item.is-complete .gr-builder__stepper-check{display:inline}
+  .gr-builder__stepper-label{overflow:hidden;font-size:10px;font-weight:900;letter-spacing:.05em;text-overflow:ellipsis;text-transform:uppercase;white-space:nowrap}
+  .gr-builder-truck-guide{display:inline-block;margin-top:14px;padding:10px 12px;color:var(--gr-builder-text);background:rgba(255,157,0,.12);border-left:3px solid var(--gr-builder-accent);font-size:12px;line-height:1.4}
+  .gr-builder-product__image-wrap{border:0;cursor:pointer}
+
+  .gr-builder-product__details{
+    display:inline-flex;
+    margin-top:9px;
+    padding:0;
+    color:var(--gr-builder-muted);
+    background:transparent;
+    border:0;
+    border-bottom:1px solid currentColor;
+    font:inherit;
+    font-size:10px;
+    font-weight:900;
+    letter-spacing:.05em;
+    line-height:1.4;
+    text-transform:uppercase;
+    cursor:pointer;
+  }
+  .gr-builder-product__details:hover{color:var(--gr-builder-text)}
+  .gr-builder__navigation--sticky{
+    position:sticky;
+    z-index:20;
+    bottom:14px;
+    width:max-content;
+    max-width:100%;
+    margin-left:auto;
+    padding:0;
+    gap:8px;
+    background:transparent;
+    border:0;
+    box-shadow:none;
+    backdrop-filter:none;
+  }
+  .gr-builder-modal[hidden]{display:none}
+  .gr-builder-modal{
+    position:fixed;
+    z-index:9999;
+    inset:0;
+    display:grid;
+    place-items:center;
+    padding:24px;
+  }
+  .gr-builder-modal__backdrop{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    padding:0;
+    background:rgba(0,0,0,.68);
+    border:0;
+    cursor:pointer;
+  }
+  .gr-builder-modal__dialog{
+    position:relative;
+    z-index:1;
+    display:grid;
+    grid-template-columns:minmax(0,1.12fr) minmax(340px,.88fr);
+    width:min(980px,100%);
+    max-height:min(760px,calc(100vh - 48px));
+    overflow:auto;
+    background:#fff;
+    border-radius:14px;
+    box-shadow:0 28px 90px rgba(0,0,0,.34);
+  }
+  .gr-builder-modal__x{
+    position:absolute;
+    z-index:3;
+    top:14px;
+    right:16px;
+    display:flex;
+    width:42px;
+    height:42px;
+    align-items:center;
+    justify-content:center;
+    padding:0;
+    color:#111;
+    background:rgba(255,255,255,.92);
+    border:0;
+    border-radius:50%;
+    font-size:34px;
+    line-height:1;
+    cursor:pointer;
+  }
+  .gr-builder-modal__media{
+    display:flex;
+    min-width:0;
+    flex-direction:column;
+    padding:28px;
+    background:#f6f6f6;
+  }
+  .gr-builder-modal__main-image-wrap{
+    position:relative;
+    display:flex;
+    min-height:410px;
+    flex:1 1 auto;
+    align-items:center;
+    justify-content:center;
+  }
+  .gr-builder-modal__main-image{
+    display:block;
+    width:100%;
+    height:100%;
+    max-height:470px;
+    object-fit:contain;
+  }
+  .gr-builder-modal__arrow{
+    position:absolute;
+    z-index:2;
+    top:50%;
+    display:flex;
+    width:42px;
+    height:42px;
+    align-items:center;
+    justify-content:center;
+    padding:0;
+    color:#111;
+    background:#fff;
+    border:1px solid #e3e3e3;
+    border-radius:50%;
+    box-shadow:0 7px 20px rgba(0,0,0,.12);
+    font-size:30px;
+    line-height:1;
+    transform:translateY(-50%);
+    cursor:pointer;
+  }
+  .gr-builder-modal__arrow--previous{left:0}
+  .gr-builder-modal__arrow--next{right:0}
+  .gr-builder-modal__arrow[hidden]{display:none}
+  .gr-builder-modal__thumbnails{
+    display:flex;
+    gap:10px;
+    margin-top:18px;
+    overflow-x:auto;
+  }
+  .gr-builder-modal__thumbnail{
+    flex:0 0 76px;
+    width:76px;
+    height:68px;
+    padding:6px;
+    background:#fff;
+    border:1px solid #dedede;
+    cursor:pointer;
+  }
+  .gr-builder-modal__thumbnail.is-active{border:2px solid var(--gr-builder-accent)}
+  .gr-builder-modal__thumbnail img{display:block;width:100%;height:100%;object-fit:contain}
+  .gr-builder-modal__content{
+    display:flex;
+    min-width:0;
+    flex-direction:column;
+    padding:38px 34px 28px;
+    color:#111;
+  }
+  .gr-builder-modal__vendor{
+    margin:0 46px 14px 0;
+    color:#555;
+    font-size:11px;
+    font-weight:900;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+  }
+  .gr-builder-modal__title{
+    margin:0;
+    color:#111;
+    font-size:30px;
+    font-weight:900;
+    line-height:1.05;
+    letter-spacing:-.03em;
+  }
+  .gr-builder-modal__price-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:20px;
+    margin-top:20px;
+    padding-bottom:20px;
+    border-bottom:1px solid #dedede;
+  }
+  .gr-builder-modal__price{font-size:24px;font-weight:900}
+  .gr-builder-modal__quantity{color:#666;font-size:12px;text-align:right}
+  .gr-builder-modal__facts{display:grid;gap:14px;margin-top:20px}
+  .gr-builder-modal__fact{
+    display:grid;
+    gap:4px;
+    padding:13px 14px;
+    background:#f5f5f5;
+    border-left:3px solid var(--gr-builder-accent);
+  }
+  .gr-builder-modal__fact[hidden]{display:none}
+  .gr-builder-modal__fact-label{
+    color:#666;
+    font-size:10px;
+    font-weight:900;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+  }
+  .gr-builder-modal__fact strong{font-size:14px}
+  .gr-builder-modal__description{
+    margin:20px 0;
+    color:#555;
+    font-size:13px;
+    line-height:1.55;
+  }
+  .gr-builder-modal__choose-button,
+  .gr-builder-modal__product-link{
+    display:flex;
+    min-height:50px;
+    align-items:center;
+    justify-content:center;
+    padding:12px 16px;
+    font-size:11px;
+    font-weight:900;
+    letter-spacing:.05em;
+    text-decoration:none;
+    text-transform:uppercase;
+  }
+  .gr-builder-modal__choose-button{
+    margin-top:auto;
+    color:var(--gr-builder-button-text);
+    background:var(--gr-builder-accent);
+    border:2px solid var(--gr-builder-accent);
+    cursor:pointer;
+  }
+  .gr-builder-modal__product-link{
+    margin-top:9px;
+    color:#111;
+    background:#fff;
+    border:2px solid #111;
+  }
+  .gr-builder-modal__close-button{
+    align-self:center;
+    margin-top:12px;
+    padding:2px 0;
+    color:#666;
+    background:transparent;
+    border:0;
+    border-bottom:1px solid currentColor;
+    font:inherit;
+    font-size:10px;
+    font-weight:900;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+    cursor:pointer;
+  }
+  body.gr-builder-modal-open{overflow:hidden}
+  @media screen and (max-width:749px){
+    .gr-builder__navigation{justify-content:flex-end}
+    .gr-builder__navigation--sticky{bottom:8px;gap:8px;margin-right:0}
+    .gr-builder__nav-button{flex:0 1 auto;min-height:48px;padding:11px 15px}
+    .gr-builder-modal{padding:10px}
+    .gr-builder-modal__dialog{grid-template-columns:1fr;max-height:calc(100vh - 20px);border-radius:10px}
+    .gr-builder-modal__media{padding:18px}
+    .gr-builder-modal__main-image-wrap{min-height:260px}
+    .gr-builder-modal__main-image{max-height:310px}
+    .gr-builder-modal__content{padding:26px 20px 20px}
+    .gr-builder-modal__title{font-size:25px}
+    .gr-builder-modal__thumbnail{flex-basis:64px;width:64px;height:58px}
+  }
+
+  .gr-builder-product__recommendation{display:none;margin-top:8px;color:#d32222;font-size:10px;font-weight:900;letter-spacing:.05em;text-transform:uppercase}
+  .gr-builder-product__recommendation.is-visible{display:block}
+
+  .gr-builder-launch{max-width:1180px;margin:0 auto}
+  .gr-builder-launch__intro{max-width:830px;margin-bottom:34px}
+  .gr-builder-launch__heading{margin:0;font-size:clamp(42px,6vw,76px);font-weight:900;line-height:.94;letter-spacing:-.045em;text-transform:uppercase}
+  .gr-builder-launch__copy{max-width:690px;margin:18px 0 0;color:var(--gr-builder-muted);font-size:17px;line-height:1.5}
+  .gr-builder-launch__paths{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+  .gr-builder-launch__path{min-height:310px;padding:34px;text-align:left;color:var(--gr-builder-text);background:var(--gr-builder-card);border:1px solid var(--gr-builder-card-border);font:inherit;cursor:pointer;transition:transform .18s ease,border-color .18s ease}
+  .gr-builder-launch__path:hover{transform:translateY(-3px);border-color:var(--gr-builder-accent)}
+  .gr-builder-launch__path--accent{color:#fff;background:#111;border-color:#111}
+  .gr-builder-launch__path-kicker{display:block;margin-bottom:72px;color:var(--gr-builder-accent);font-size:11px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+  .gr-builder-launch__path strong{display:block;font-size:clamp(28px,4vw,48px);line-height:1;text-transform:uppercase}
+  .gr-builder-launch__path span:not(.gr-builder-launch__path-kicker){display:block;max-width:470px;margin-top:14px;color:var(--gr-builder-muted);font-size:15px;line-height:1.5}
+  .gr-builder-launch__path--accent span:not(.gr-builder-launch__path-kicker){color:rgba(255,255,255,.7)}
+  .gr-builder-launch__path b{display:block;margin-top:34px;font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+  .gr-builder-guide{padding:34px;background:#fff;border:1px solid var(--gr-builder-card-border)}
+  .gr-builder-guide__top{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:28px}
+  .gr-builder-guide__top h2{margin:0;font-size:38px;font-weight:900;text-transform:uppercase}
+  .gr-builder-guide__cancel{padding:0;background:none;border:0;border-bottom:1px solid currentColor;font:inherit;font-size:12px;font-weight:900;text-transform:uppercase;cursor:pointer}
+  .gr-builder-guide__questions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+  .gr-builder-guide__question{min-width:0;margin:0;padding:20px;border:1px solid var(--gr-builder-card-border)}
+  .gr-builder-guide__question legend,.gr-builder-guide__question>label:first-child{display:block;margin-bottom:14px;font-size:12px;font-weight:900;letter-spacing:.06em;text-transform:uppercase}
+  fieldset.gr-builder-guide__question label{display:block;margin-top:8px;cursor:pointer}
+  fieldset.gr-builder-guide__question input{position:absolute;opacity:0}
+  fieldset.gr-builder-guide__question span{display:block;padding:12px 14px;border:1px solid var(--gr-builder-card-border);font-size:13px;font-weight:800}
+  fieldset.gr-builder-guide__question input:checked+span{color:#111;background:var(--gr-builder-accent);border-color:var(--gr-builder-accent)}
+  .gr-builder-guide__question select{width:100%;height:56px;padding:0 18px;background:#fff;border:1px solid var(--gr-builder-card-border);font:inherit;font-size:16px}
+  .gr-builder-guide__submit{display:flex;width:min(100%,470px);min-height:58px;align-items:center;justify-content:center;margin:18px auto 0;padding:14px 20px;color:var(--gr-builder-button-text);background:var(--gr-builder-accent);border:2px solid var(--gr-builder-accent);font:inherit;font-size:12px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+  .gr-builder-guide__intro{max-width:650px;margin:10px 0 0;color:var(--gr-builder-muted);font-size:14px;line-height:1.5}
+  .gr-builder-guide__question--shoe{grid-column:1/-1;width:min(100%,470px);margin:0 auto;padding:0;border:0}
+  .gr-builder-recommendation{max-width:980px;margin:0 auto}
+  .gr-builder-recommendation__back{margin:0 0 18px;padding:0;color:var(--gr-builder-text);background:none;border:0;border-bottom:1px solid currentColor;font:inherit;font-size:11px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;cursor:pointer}
+  .gr-builder-recommendation__card{padding:44px;background:#111;color:#fff;border:1px solid #111;box-shadow:0 24px 70px rgba(0,0,0,.18)}
+  .gr-builder-recommendation__lead{margin:0;color:rgba(255,255,255,.68);font-size:16px;font-weight:700}
+  .gr-builder-recommendation__card h2{display:flex;align-items:center;gap:.16em;margin:18px 0 0;color:#fff;font-family:Arial,Helvetica,sans-serif;font-size:clamp(64px,10vw,118px);font-weight:900;line-height:.86;letter-spacing:-.055em}
+  .gr-builder-recommendation__card h2 span{display:inline-block}
+  .gr-builder-recommendation__card h2 b{display:inline-block;color:var(--gr-builder-accent);font:inherit;font-size:.72em;letter-spacing:0;transform:translateY(-.03em)}
+  .gr-builder-recommendation__reason{max-width:760px;margin-top:30px;padding-top:24px;border-top:1px solid rgba(255,255,255,.16)}
+  .gr-builder-recommendation__reason strong{display:block;font-size:24px;font-weight:900;text-transform:uppercase}
+  .gr-builder-recommendation__reason p{margin:10px 0 0;color:rgba(255,255,255,.72);font-size:15px;line-height:1.55}
+  .gr-builder-recommendation__options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:30px}
+  .gr-builder-recommendation__option{min-height:112px;padding:20px;text-align:left;color:#fff;background:transparent;border:1px solid rgba(255,255,255,.35);font:inherit;cursor:pointer;transition:transform .18s ease,border-color .18s ease,background .18s ease}
+  .gr-builder-recommendation__option:hover{transform:translateY(-2px);border-color:var(--gr-builder-accent)}
+  .gr-builder-recommendation__option--primary{color:#111;background:var(--gr-builder-accent);border-color:var(--gr-builder-accent)}
+  .gr-builder-recommendation__option span{display:block;font-size:16px;font-weight:900;text-transform:uppercase}
+  .gr-builder-recommendation__option small{display:block;margin-top:8px;font-size:12px;line-height:1.4;opacity:.72}
+  .gr-builder-recommendation__all{display:block;margin:18px auto 0;padding:0;color:#fff;background:none;border:0;border-bottom:1px solid rgba(255,255,255,.65);font:inherit;font-size:11px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;cursor:pointer}
+  .gr-builder-recommendation__crew{display:flex;justify-content:space-between;gap:24px;margin-top:34px;padding-top:20px;border-top:1px solid rgba(255,255,255,.16)}
+  .gr-builder-recommendation__crew strong{font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+  .gr-builder-recommendation__crew span{max-width:430px;color:rgba(255,255,255,.58);font-size:11px;line-height:1.45;text-align:right}
+  .gr-builder-deck-guide{margin-top:18px;padding:14px 16px;background:#fff7e8;border-left:4px solid var(--gr-builder-accent)}
+  .gr-builder-deck-guide strong,.gr-builder-deck-guide span{display:block}
+  .gr-builder-deck-guide strong{font-size:14px}.gr-builder-deck-guide span{margin-top:4px;color:var(--gr-builder-muted);font-size:12px}
+  .gr-builder-product.is-guided-match{border-color:var(--gr-builder-accent);box-shadow:0 0 0 2px var(--gr-builder-accent)}
+  .gr-builder-product.is-guided-match:before{content:'Recommended';position:absolute;top:10px;right:10px;z-index:4;padding:7px 9px;color:#111;background:var(--gr-builder-accent);font-size:9px;font-weight:900;letter-spacing:.06em;text-transform:uppercase}
+  @media(max-width:749px){.gr-builder-launch__paths,.gr-builder-guide__questions,.gr-builder-recommendation__options{grid-template-columns:1fr}.gr-builder-launch__path{min-height:250px;padding:24px}.gr-builder-launch__path-kicker{margin-bottom:45px}.gr-builder-guide{padding:22px}.gr-builder-guide__top h2{font-size:28px}.gr-builder-recommendation__card{padding:28px 22px}.gr-builder-recommendation__card h2{font-size:62px}.gr-builder-recommendation__crew{display:block}.gr-builder-recommendation__crew span{display:block;margin-top:8px;text-align:left}.gr-builder-guide__question--shoe{grid-column:auto;width:100%}}
+
+  @media (prefers-reduced-motion: reduce) {
+    .gr-builder__progress-fill,
+    .gr-builder-product,
+    .gr-builder-product__image,
+    .gr-builder-product__select {
+      transition: none;
+    }
+  }
+{% endstylesheet %}
+
+<script>
+(() => {
+  const section=document.querySelector('#GRBoardBuilder-{{ section.id }}');
+  if(!section||section.dataset.builderReady==='true')return;
+  section.dataset.builderReady='true';
+
+  const launch=section.querySelector('[data-builder-launch]');
+  const app=section.querySelector('[data-builder-app]');
+  const paths=section.querySelector('.gr-builder-launch__paths');
+  const guide=section.querySelector('[data-builder-guide]');
+  const recommendationScreen=section.querySelector('[data-builder-recommendation]');
+  const recommendationRange=section.querySelector('[data-builder-recommendation-range]');
+  const recommendationPrimary=section.querySelector('[data-builder-recommendation-primary]');
+  const recommendationCopy=section.querySelector('[data-builder-recommendation-copy]');
+  const recommendationPrimaryButton=section.querySelector('[data-builder-recommendation-primary-button]');
+  const recommendationSecondaryButton=section.querySelector('[data-builder-recommendation-secondary-button]');
+  const deckGuide=section.querySelector('[data-deck-guide]');
+  const deckGuideTitle=section.querySelector('[data-deck-guide-title]');
+  const deckGuideCopy=section.querySelector('[data-deck-guide-copy]');
+  let guidedWidth=null;
+
+  const steps=[...section.querySelectorAll('[data-builder-step]')];
+  const keys=['deck','trucks','wheels','bearings','grip','hardware'];
+  const selections=Object.fromEntries(keys.map(k=>[k,null]));
+  const stepper=[...section.querySelectorAll('[data-builder-step-jump]')];
+  const truckMap={
+    slappy:{'8':'8.0','8.25':'8.25','8.5':'8.5','8.75':'8.75','9':'9.0'},
+    independent:{'7.75':'129','8':'139','8.25':'144','8.5':'149','8.75':'159','9':'169','10':'215'},
+    ace:{'8':'33','8.25':'44','8.5':'55','8.75':'60','9':'66','9.5':'77'},
+    thunder:{'8':'147','8.25':'148','8.5':'149','8.75':'151','9':'161'}
+  };
+
+  let current=0,adding=false,deckWidth=null;
+  const progressFill=section.querySelector('[data-builder-progress-fill]');
+  const stepCount=section.querySelector('[data-builder-step-count]');
+  const progressLabel=section.querySelector('[data-builder-progress-label]');
+  const back=section.querySelector('[data-builder-back]');
+  const next=section.querySelector('[data-builder-next]');
+  const addAll=section.querySelector('[data-builder-add-all]');
+  const addLabel=section.querySelector('[data-builder-add-label]');
+  const totalEl=section.querySelector('[data-builder-total]');
+  const message=section.querySelector('[data-builder-message]');
+  const truckGuide=section.querySelector('[data-truck-guide]');
+  const modal=section.querySelector('[data-builder-modal]');
+  const modalImage=section.querySelector('[data-builder-modal-image]');
+  const modalThumbs=section.querySelector('[data-builder-modal-thumbnails]');
+  const modalVendor=section.querySelector('[data-builder-modal-vendor]');
+  const modalTitle=section.querySelector('[data-builder-modal-title]');
+  const modalPrice=section.querySelector('[data-builder-modal-price]');
+  const modalQuantity=section.querySelector('[data-builder-modal-quantity]');
+  const modalVariantWrap=section.querySelector('[data-builder-modal-variant-wrap]');
+  const modalVariant=section.querySelector('[data-builder-modal-variant]');
+  const modalRecommendationWrap=section.querySelector('[data-builder-modal-recommendation-wrap]');
+  const modalRecommendation=section.querySelector('[data-builder-modal-recommendation]');
+  const modalDescription=section.querySelector('[data-builder-modal-description]');
+  const modalProductLink=section.querySelector('[data-builder-modal-product-link]');
+  const modalChoose=section.querySelector('[data-builder-modal-choose]');
+  const modalPrevious=section.querySelector('[data-builder-modal-previous]');
+  const modalNext=section.querySelector('[data-builder-modal-next]');
+  let modalMedia=[];
+  let modalMediaIndex=0;
+  let modalReturnFocus=null;
+  let modalActiveCard=null;
+
+  const money=c=>window.Shopify&&typeof window.Shopify.formatMoney==='function'
+    ?window.Shopify.formatMoney(c)
+    :new Intl.NumberFormat(document.documentElement.lang||'en-US',{style:'currency',currency:'{{ cart.currency.iso_code | default: shop.currency }}'}).format(c/100);
+
+  const widthFrom=value=>{
+    const m=String(value||'').match(/(?:^|[^0-9])(10(?:\.0)?|9\.5|9(?:\.0)?|8\.75|8\.5|8\.38|8\.25|8\.125|8(?:\.0)?|7\.75)(?=[^0-9]|$)/i);
+    if(!m)return null;
+    const n=Number(m[1]);
+    if(n===8.125||n===8.38)return '8.25';
+    return String(n);
+  };
+
+  const startApp=()=>{launch.hidden=true;app.hidden=false;showStep(0,false);window.scrollTo({top:section.getBoundingClientRect().top+window.scrollY-12,behavior:'smooth'});};
+  const guideValue=name=>section.querySelector(`input[name="${name}-{{ section.id }}"]:checked`)?.value||'';
+  const recommendationData=()=>{
+    const shoe=section.querySelector('[data-guide-shoe]').value;
+    const style=guideValue('gr-style');
+    const experience=guideValue('gr-experience');
+    const map={
+      small:{primary:'7.75',secondary:'8.0',range:'7.75–8.0'},
+      medium:{primary:'8.0',secondary:'8.25',range:'8.0–8.25'},
+      large:{primary:'8.25',secondary:'8.5',range:'8.25–8.5'},
+      xlarge:{primary:'8.5',secondary:'8.75',range:'8.5–8.75'},
+      xxlarge:{primary:'8.75',secondary:'9.0',range:'8.75–9.0'}
+    };
+    const data={...map[shoe]};
+    if(style==='transition'){
+      data.primary=data.secondary;
+      data.secondary=shoe==='xxlarge'?'9.5':String(Number(data.secondary)+.25);
+      data.range=`${data.primary}–${data.secondary}`;
+    }
+    const styleCopy={
+      street:'a responsive all-around setup for street skating',
+      park:'a balanced setup that works well at the park',
+      transition:'extra stability and room underfoot for transition',
+      all:'a versatile setup that can handle a little of everything'
+    };
+    const experienceCopy={
+      new:'easy to learn on without boxing you in as you progress',
+      beginner:'stable enough to build confidence while staying responsive',
+      intermediate:'a dependable size range with room to fine-tune your preference',
+      advanced:'a strong starting point that you can adjust to your exact preference'
+    };
+    data.copy=`This range gives you ${styleCopy[style]||styleCopy.all}. It is ${experienceCopy[experience]||experienceCopy.beginner}.`;
+    return data;
+  };
+
+  const applyGuidedRecommendation=(width)=>{
+    guidedWidth=width;
+    const secondary=section.dataset.guidedSecondary||'';
+    deckGuide.hidden=false;
+    deckGuideTitle.textContent=`Get Real recommendation: ${guidedWidth}${secondary?`–${secondary}`:''}`;
+    deckGuideCopy.textContent=`We highlighted ${guidedWidth} decks below. You can still choose any deck you want.`;
+    steps[0].querySelectorAll('[data-builder-product]').forEach(card=>{
+      card.classList.remove('is-guided-match');
+      const select=card.querySelector('[data-builder-variant-select]');
+      let match=false;
+      if(select){[...select.options].forEach((option,index)=>{if(widthFrom(option.dataset.variantTitle)===guidedWidth&&option.dataset.available==='true'){if(!match)select.selectedIndex=index;match=true;}});}
+      if(!match)match=widthFrom(card.dataset.variantTitle)===guidedWidth||widthFrom(card.dataset.productTitle)===guidedWidth;
+      card.classList.toggle('is-guided-match',match);
+      if(match&&select)select.dispatchEvent(new Event('change',{bubbles:true}));
+    });
+  };
+
+  const showRecommendation=()=>{
+    const data=recommendationData();
+    section.dataset.guidedPrimary=data.primary;
+    section.dataset.guidedSecondary=data.secondary;
+    const rangeParts=data.range.split(/[–-]/).map(part=>part.trim());
+    recommendationRange.innerHTML=`<span>${rangeParts[0]||data.primary}</span><b aria-hidden="true">–</b><span>${rangeParts[1]||data.secondary}</span>`;
+    recommendationPrimary.textContent=`Our pick: ${data.primary}`;
+    recommendationCopy.textContent=data.copy;
+    recommendationPrimaryButton.textContent=`Start building a ${data.primary}`;
+    recommendationSecondaryButton.textContent=`Show me ${data.secondary} instead`;
+    guide.hidden=true;
+    recommendationScreen.hidden=false;
+    recommendationScreen.scrollIntoView({behavior:'smooth',block:'start'});
+  };
+
+  const beginRecommendedBuild=(width,browseAll=false)=>{
+    recommendationScreen.hidden=true;
+    startApp();
+    if(!browseAll)applyGuidedRecommendation(width);
+  };
+
+  const brandOf=card=>{
+    const value=`${card.dataset.vendor||''} ${card.dataset.productTitle||''}`.toLowerCase();
+    return Object.keys(truckMap).find(b=>value.includes(b))||null;
+  };
+
+  const recommended=card=>{
+    const brand=brandOf(card);
+    return brand&&deckWidth?truckMap[brand][deckWidth]||null:null;
+  };
+
+  const optionMatches=(option,size)=>{
+    if(!size)return false;
+    const escaped=size.replace('.','\\.');
+    return new RegExp(`(^|[^0-9])${escaped}(?=[^0-9]|$)`,'i').test(`${option.dataset.variantTitle||''} ${option.textContent||''}`);
+  };
+
+  const applyTruckRecommendations=()=>{
+    const widthEl=section.querySelector('[data-truck-guide-width]');
+    const sizesEl=section.querySelector('[data-truck-guide-sizes]');
+    if(!deckWidth){if(truckGuide)truckGuide.hidden=true;return;}
+    const labels=new Map();
+    section.querySelectorAll('[data-builder-product][data-step-key="trucks"]').forEach(card=>{
+      const size=recommended(card),select=card.querySelector('[data-builder-variant-select]'),badge=card.querySelector('[data-builder-recommendation]');
+      if(badge){badge.textContent=size?`${size} recommended`:'';badge.classList.toggle('is-visible',!!size);}
+      if(!size)return;
+      const brand=brandOf(card);
+      if(!labels.has(brand))labels.set(brand,`${brand[0].toUpperCase()+brand.slice(1)} ${size}`);
+      if(select){
+        [...select.options].forEach(option=>{
+          const base=option.dataset.baseLabel||option.textContent.replace(/\s+\(Recommended\)$/i,'');
+          option.dataset.baseLabel=base;
+          option.textContent=optionMatches(option,size)?`${base} (Recommended)`:base;
+        });
+        const match=[...select.options].find(o=>!o.disabled&&optionMatches(o,size));
+        if(match){select.value=match.value;select.dispatchEvent(new Event('change',{bubbles:true}));}
+      }
+    });
+    if(truckGuide&&widthEl&&sizesEl){
+      widthEl.textContent=deckWidth;
+      sizesEl.textContent=[...labels.values()].join(' · ');
+      truckGuide.hidden=!labels.size;
+    }
+  };
+
+  const renderModalMedia=()=>{
+    const media=modalMedia[modalMediaIndex]||modalMedia[0];
+    if(!media)return;
+    modalImage.src=media.src;
+    modalImage.alt=media.alt||modalTitle.textContent||'Product image';
+    modalThumbs.querySelectorAll('[data-builder-modal-thumbnail]').forEach((button,index)=>button.classList.toggle('is-active',index===modalMediaIndex));
+    const multiple=modalMedia.length>1;
+    modalPrevious.hidden=!multiple;
+    modalNext.hidden=!multiple;
+  };
+
+  const closeModal=()=>{
+    if(!modal||modal.hidden)return;
+    modal.hidden=true;
+    modal.setAttribute('aria-hidden','true');
+    document.body.classList.remove('gr-builder-modal-open');
+    if(modalReturnFocus)modalReturnFocus.focus();
+    modalActiveCard=null;
+  };
+
+  const openModal=(card,trigger)=>{
+    if(!modal||!card)return;
+    const mediaScript=card.querySelector('[data-builder-product-media]');
+    try{modalMedia=mediaScript?JSON.parse(mediaScript.textContent):[];}catch(error){modalMedia=[];}
+    if(!modalMedia.length&&card.dataset.image)modalMedia=[{src:card.dataset.image,alt:card.dataset.productTitle||''}];
+    modalMediaIndex=0;
+    modalReturnFocus=trigger||null;
+    modalActiveCard=card;
+    const v=variantData(card);
+    const recommendation=card.querySelector('[data-builder-recommendation]')?.textContent?.trim()||'';
+    const description=card.querySelector('[data-builder-quick-description]')?.textContent?.trim()||'';
+    modalVendor.textContent=card.dataset.vendor||'Get Real Board Shop';
+    modalTitle.textContent=card.dataset.productTitle||'';
+    modalPrice.textContent=money(v.price||Number(card.dataset.price)||0);
+    modalQuantity.textContent=Number(card.dataset.quantity||1)>1?`Quantity in setup: ${card.dataset.quantity}`:'Quantity in setup: 1';
+    modalVariant.textContent=v.variantTitle&&v.variantTitle!=='Default Title'?v.variantTitle:'Standard option';
+    modalVariantWrap.hidden=false;
+    modalRecommendation.textContent=recommendation;
+    modalRecommendationWrap.hidden=!recommendation;
+    modalDescription.textContent=description||'See the full product page for complete specifications and additional information.';
+    modalProductLink.href=card.dataset.productUrl||'#';
+    modalThumbs.innerHTML='';
+    modalMedia.forEach((item,index)=>{
+      const button=document.createElement('button');
+      button.type='button';
+      button.className='gr-builder-modal__thumbnail';
+      button.dataset.builderModalThumbnail='';
+      button.setAttribute('aria-label',`View image ${index+1}`);
+      const image=document.createElement('img');
+      image.src=item.src;
+      image.alt='';
+      button.appendChild(image);
+      button.addEventListener('click',()=>{modalMediaIndex=index;renderModalMedia();});
+      modalThumbs.appendChild(button);
+    });
+    renderModalMedia();
+    modal.hidden=false;
+    modal.setAttribute('aria-hidden','false');
+    document.body.classList.add('gr-builder-modal-open');
+    section.querySelector('[data-builder-modal-close].gr-builder-modal__x')?.focus();
+  };
+
+  const count=()=>keys.filter(k=>selections[k]).length;
+  const updateTotal=()=>{totalEl.textContent=money(keys.reduce((sum,k)=>selections[k]?sum+selections[k].price*selections[k].quantity:sum,0));};
+
+  const updateSummary=key=>{
+    const item=section.querySelector(`[data-summary-item="${key}"]`);if(!item)return;
+    const s=selections[key],img=item.querySelector('[data-summary-image]'),ph=item.querySelector('[data-summary-placeholder]'),title=item.querySelector('[data-summary-title]'),variant=item.querySelector('[data-summary-variant]'),change=item.querySelector('[data-summary-change]');
+    if(!s){img.hidden=true;img.removeAttribute('src');img.alt='';ph.hidden=false;title.textContent='Not selected';variant.textContent='';change.hidden=true;return;}
+    if(s.image){img.src=s.image;img.alt=s.productTitle;img.hidden=false;ph.hidden=true}else{img.hidden=true;ph.hidden=false}
+    title.textContent=s.productTitle;
+    const parts=[];if(s.variantTitle&&s.variantTitle!=='Default Title')parts.push(s.variantTitle);if(s.quantity>1)parts.push(`Qty ${s.quantity}`);
+    variant.textContent=parts.join(' · ');change.hidden=false;
+  };
+
+  const updateAdd=()=>{addAll.disabled=count()!==keys.length||adding;};
+  const updateStepper=()=>stepper.forEach((item,i)=>{
+    const done=!!selections[keys[i]];
+    item.classList.toggle('is-active',i===current);
+    item.classList.toggle('is-complete',done&&i!==current);
+    item.disabled=i>current&&!done;
+  });
+  const updateNav=()=>{
+    back.disabled=current===0;next.disabled=!selections[keys[current]];
+    next.innerHTML=current===steps.length-1?'Review build <span aria-hidden="true">→</span>':'Next step <span aria-hidden="true">→</span>';
+    updateStepper();
+  };
+
+  const showStep=(index,scroll=true)=>{
+    current=Math.max(0,Math.min(index,steps.length-1));
+    steps.forEach((step,i)=>{step.hidden=i!==current;step.classList.toggle('is-active',i===current);});
+    progressFill.style.width=`${((current+1)/steps.length)*100}%`;
+    stepCount.textContent=`Step ${current+1} of ${steps.length}`;
+    progressLabel.textContent=steps[current].dataset.stepHeading||'';
+    if(current===1)applyTruckRecommendations();
+    updateNav();
+    if(scroll)window.scrollTo({top:section.getBoundingClientRect().top+window.scrollY-20,behavior:'smooth'});
+  };
+
+  const variantData=card=>{
+    const select=card.querySelector('[data-builder-variant-select]'),option=select?select.options[select.selectedIndex]:null;
+    return{
+      variantId:Number(option?option.value:card.dataset.variantId),
+      price:Number(option?option.dataset.price:card.dataset.price),
+      variantTitle:option?option.dataset.variantTitle:card.dataset.variantTitle,
+      available:option?option.dataset.available==='true':card.dataset.available==='true'
+    };
+  };
+
+  const choose=card=>{
+    const key=card.dataset.stepKey,v=variantData(card);if(!v.available||!v.variantId)return;
+    card.closest('[data-builder-step]').querySelectorAll('[data-builder-product]').forEach(other=>{
+      other.classList.remove('is-selected');const b=other.querySelector('[data-builder-select]');if(b)b.textContent='Choose this';
+    });
+    card.classList.add('is-selected');const button=card.querySelector('[data-builder-select]');if(button)button.textContent='Selected';
+    selections[key]={variantId:v.variantId,price:v.price,variantTitle:v.variantTitle,productTitle:card.dataset.productTitle,image:card.dataset.image,quantity:Number(card.dataset.quantity||1)};
+    if(key==='deck'){
+      deckWidth=widthFrom(`${v.variantTitle} ${card.dataset.productTitle}`);
+      selections.trucks=null;updateSummary('trucks');
+      section.querySelectorAll('[data-builder-product][data-step-key="trucks"]').forEach(c=>{c.classList.remove('is-selected');const b=c.querySelector('[data-builder-select]');if(b)b.textContent='Choose this';});
+      applyTruckRecommendations();
+    }
+    updateSummary(key);updateTotal();updateNav();updateAdd();message.textContent='';
+  };
+
+  section.querySelectorAll('[data-builder-select],[data-builder-card-select]').forEach(control=>control.addEventListener('click',e=>{e.preventDefault();choose(control.closest('[data-builder-product]'));}));
+  section.querySelectorAll('[data-builder-product]').forEach(card=>card.addEventListener('click',e=>{if(e.target.closest('select,a,button'))return;choose(card);}));
+
+  section.querySelectorAll('[data-builder-details]').forEach(button=>button.addEventListener('click',event=>{
+    event.preventDefault();
+    event.stopPropagation();
+    openModal(button.closest('[data-builder-product]'),button);
+  }));
+  section.querySelectorAll('[data-builder-modal-close]').forEach(button=>button.addEventListener('click',closeModal));
+  modalChoose?.addEventListener('click',()=>{
+    if(!modalActiveCard)return;
+    const card=modalActiveCard;
+    choose(card);
+    closeModal();
+  });
+  modalPrevious?.addEventListener('click',()=>{modalMediaIndex=(modalMediaIndex-1+modalMedia.length)%modalMedia.length;renderModalMedia();});
+  modalNext?.addEventListener('click',()=>{modalMediaIndex=(modalMediaIndex+1)%modalMedia.length;renderModalMedia();});
+  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&modal&&!modal.hidden)closeModal();});
+
+  section.querySelectorAll('[data-builder-variant-select]').forEach(select=>{
+    select.addEventListener('click',e=>e.stopPropagation());
+    select.addEventListener('change',()=>{
+      const card=select.closest('[data-builder-product]'),option=select.options[select.selectedIndex],price=card.querySelector('[data-builder-card-price]'),button=card.querySelector('[data-builder-select]');
+      price.textContent=money(Number(option.dataset.price));button.disabled=option.dataset.available!=='true';button.textContent=option.dataset.available==='true'?'Choose this':'Sold out';
+      if(card.classList.contains('is-selected')){const key=card.dataset.stepKey;selections[key]=null;card.classList.remove('is-selected');updateSummary(key);updateTotal();updateNav();updateAdd();}
+    });
+  });
+
+  section.querySelectorAll('[data-builder-search]').forEach(input=>input.addEventListener('input',()=>{
+    const q=input.value.trim().toLowerCase();
+    input.closest('[data-builder-step]').querySelectorAll('[data-builder-product]').forEach(card=>{card.hidden=q!==''&&!(card.dataset.searchText||'').includes(q);});
+  }));
+
+  section.querySelector('[data-builder-direct]').addEventListener('click',startApp);
+  section.querySelector('[data-builder-guided-open]').addEventListener('click',()=>{paths.hidden=true;guide.hidden=false;});
+  section.querySelector('[data-builder-guide-cancel]').addEventListener('click',()=>{guide.hidden=true;paths.hidden=false;});
+  section.querySelector('[data-builder-guide-submit]').addEventListener('click',showRecommendation);
+  section.querySelector('[data-builder-recommendation-back]').addEventListener('click',()=>{recommendationScreen.hidden=true;guide.hidden=false;});
+  section.querySelectorAll('[data-builder-recommendation-choice]').forEach(button=>button.addEventListener('click',()=>{
+    const choice=button.dataset.builderRecommendationChoice;
+    beginRecommendedBuild(choice==='primary'?section.dataset.guidedPrimary:section.dataset.guidedSecondary);
+  }));
+  section.querySelector('[data-builder-recommendation-all]').addEventListener('click',()=>beginRecommendedBuild('',true));
+
+  back.addEventListener('click',()=>showStep(current-1));
+  next.addEventListener('click',()=>{if(!selections[keys[current]])return;current<steps.length-1?showStep(current+1):section.querySelector('.gr-builder-summary').scrollIntoView({behavior:'smooth',block:'start'});});
+  stepper.forEach(item=>item.addEventListener('click',()=>{const target=Number(item.dataset.builderStepJump);if(target<=current||selections[keys[target]])showStep(target);}));
+  section.querySelectorAll('[data-summary-change]').forEach(button=>button.addEventListener('click',()=>showStep(Number(button.dataset.summaryChange))));
+
+  addAll.addEventListener('click',async()=>{
+    if(adding||count()!==keys.length)return;
+    adding=true;addAll.disabled=true;addLabel.textContent='Adding setup...';message.textContent='';
+    const items=keys.map(key=>({id:selections[key].variantId,quantity:selections[key].quantity,properties:{'_Get Real Build':'Complete Setup'}}));
+    try{
+      const root=window.Shopify?.routes?.root||'/';
+      const response=await fetch(`${root}cart/add.js`,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({items})});
+      if(!response.ok){const error=await response.json();throw new Error(error.description||error.message||'The setup could not be added.');}
+      message.textContent='Your complete setup was added to the cart.';addLabel.textContent='Setup added';setTimeout(()=>{window.location.href=`${root}cart`;},650);
+    }catch(error){message.textContent=error.message||'Something went wrong. Please try again.';addLabel.textContent='Add complete setup';adding=false;updateAdd();}
+  });
+
+  updateTotal();updateAdd();showStep(0,false);
+})();
+</script>
+
+{% schema %}
+{
+  "name": "GR board builder",
+  "tag": "section",
+  "class": "section-gr-board-builder",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Heading"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Small heading",
+      "default": "Get Real Setup Builder"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Build my board."
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Choose every part of your setup one step at a time. We’ll keep your full build and total visible as you go."
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 36,
+      "max": 84,
+      "step": 2,
+      "unit": "px",
+      "label": "Desktop heading size",
+      "default": 58
+    },
+    {
+      "type": "range",
+      "id": "mobile_heading_size",
+      "min": 30,
+      "max": 54,
+      "step": 2,
+      "unit": "px",
+      "label": "Mobile heading size",
+      "default": 40
+    },
+    {
+      "type": "header",
+      "content": "Collections"
+    },
+    {
+      "type": "collection",
+      "id": "decks_collection",
+      "label": "Decks collection"
+    },
+    {
+      "type": "collection",
+      "id": "trucks_collection",
+      "label": "Trucks collection"
+    },
+    {
+      "type": "collection",
+      "id": "wheels_collection",
+      "label": "Wheels collection"
+    },
+    {
+      "type": "collection",
+      "id": "bearings_collection",
+      "label": "Bearings collection"
+    },
+    {
+      "type": "collection",
+      "id": "grip_collection",
+      "label": "Grip Tape collection"
+    },
+    {
+      "type": "collection",
+      "id": "hardware_collection",
+      "label": "Hardware collection"
+    },
+    {
+      "type": "header",
+      "content": "Products"
+    },
+    {
+      "type": "range",
+      "id": "products_per_step",
+      "min": 4,
+      "max": 24,
+      "step": 1,
+      "label": "Products shown per step",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "desktop_columns",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "label": "Desktop product columns",
+      "default": 3
+    },
+    {
+      "type": "select",
+      "id": "mobile_columns",
+      "label": "Mobile product columns",
+      "default": "2",
+      "options": [
+        {
+          "value": "1",
+          "label": "One"
+        },
+        {
+          "value": "2",
+          "label": "Two"
+        }
+      ]
+    },
+   {
+  "type": "select",
+  "id": "truck_quantity",
+  "label": "Truck quantity added",
+  "default": "2",
+  "info": "Use 2 when trucks are sold individually.",
+  "options": [
+    {
+      "value": "1",
+      "label": "One truck"
+    },
+    {
+      "value": "2",
+      "label": "Two trucks"
+    }
+  ]
+},
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Page background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Page text",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "muted_text_color",
+      "label": "Muted text",
+      "default": "#666666"
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Product card background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "card_border_color",
+      "label": "Card and field borders",
+      "default": "#dedede"
+    },
+    {
+      "type": "color",
+      "id": "summary_background",
+      "label": "Summary background",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "summary_text_color",
+      "label": "Summary text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent and buttons",
+      "default": "#ff9d00"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Accent button text",
+      "default": "#111111"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 24,
+      "max": 140,
+      "step": 4,
+      "unit": "px",
+      "label": "Desktop top padding",
+      "default": 52
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 24,
+      "max": 140,
+      "step": 4,
+      "unit": "px",
+      "label": "Desktop bottom padding",
+      "default": 72
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_top",
+      "min": 20,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Mobile top padding",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_bottom",
+      "min": 20,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Mobile bottom padding",
+      "default": 48
+    }
+  ],
+  "presets": [
+    {
+      "name": "GR board builder"
+    }
+  ]
+}
+{% endschema %}

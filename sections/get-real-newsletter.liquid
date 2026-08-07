@@ -1,0 +1,567 @@
+{% comment %}
+  GET REAL — JOIN THE REAL ONES v1.0
+
+  - Shopify email signup form
+  - Bold black-and-white layout
+  - Editable heading, copy and button
+  - Optional small label
+  - Success and error messages
+  - Responsive mobile layout
+{% endcomment %}
+
+<section
+  id="GRNewsletter-{{ section.id }}"
+  class="gr-newsletter"
+>
+  <div class="gr-newsletter__inner page-width">
+    <div class="gr-newsletter__content">
+      {% if section.settings.eyebrow != blank %}
+        <p class="gr-newsletter__eyebrow">
+          {{ section.settings.eyebrow | escape }}
+        </p>
+      {% endif %}
+
+      {% if section.settings.heading != blank %}
+        <h2 class="gr-newsletter__heading">
+          {{ section.settings.heading | escape }}
+        </h2>
+      {% endif %}
+
+      {% if section.settings.description != blank %}
+        <p class="gr-newsletter__description">
+          {{ section.settings.description | escape }}
+        </p>
+      {% endif %}
+    </div>
+
+    <div class="gr-newsletter__form-wrap">
+      {% form 'customer', class: 'gr-newsletter__form' %}
+        <input
+          type="hidden"
+          name="contact[tags]"
+          value="newsletter"
+        >
+
+        <div class="gr-newsletter__fields">
+          <label
+            class="visually-hidden"
+            for="GRNewsletterEmail-{{ section.id }}"
+          >
+            Email address
+          </label>
+
+          <input
+            id="GRNewsletterEmail-{{ section.id }}"
+            class="gr-newsletter__input"
+            type="email"
+            name="contact[email]"
+            value="{{ form.email }}"
+            autocorrect="off"
+            autocapitalize="off"
+            autocomplete="email"
+            placeholder="{{ section.settings.placeholder | escape }}"
+            required
+          >
+
+          <button
+            class="gr-newsletter__button"
+            type="submit"
+          >
+            <span>{{ section.settings.button_label | escape }}</span>
+            <span aria-hidden="true">→</span>
+          </button>
+        </div>
+
+        {% if form.posted_successfully? %}
+          <p
+            class="gr-newsletter__message gr-newsletter__message--success"
+            tabindex="-1"
+          >
+            {{ section.settings.success_message | escape }}
+          </p>
+        {% endif %}
+
+        {% if form.errors %}
+          <div
+            class="gr-newsletter__message gr-newsletter__message--error"
+            role="alert"
+          >
+            {{ form.errors | default_errors }}
+          </div>
+        {% endif %}
+      {% endform %}
+
+      {% if section.settings.small_print != blank %}
+        <p class="gr-newsletter__small-print">
+          {{ section.settings.small_print | escape }}
+        </p>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+{% style %}
+  #GRNewsletter-{{ section.id }} {
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+    background-color: {{ section.settings.background_color }};
+    color: {{ section.settings.text_color }};
+  }
+
+  #GRNewsletter-{{ section.id }} .gr-newsletter__heading {
+    max-width: {{ section.settings.heading_width }}px;
+    font-size: {{ section.settings.heading_size }}px;
+  }
+
+  #GRNewsletter-{{ section.id }} .gr-newsletter__description {
+    max-width: {{ section.settings.description_width }}px;
+    font-size: {{ section.settings.description_size }}px;
+    opacity: {{ section.settings.description_opacity | divided_by: 100.0 }};
+  }
+
+  #GRNewsletter-{{ section.id }} .gr-newsletter__input {
+    height: {{ section.settings.form_height }}px;
+    border-color: {{ section.settings.field_border_color }};
+    color: {{ section.settings.field_text_color }};
+    background-color: {{ section.settings.field_background }};
+  }
+
+  #GRNewsletter-{{ section.id }} .gr-newsletter__input::placeholder {
+    color: {{ section.settings.field_text_color }};
+    opacity: 0.55;
+  }
+
+  #GRNewsletter-{{ section.id }} .gr-newsletter__button {
+    min-height: {{ section.settings.form_height }}px;
+    color: {{ section.settings.button_text_color }};
+    background-color: {{ section.settings.button_background }};
+    border-color: {{ section.settings.button_background }};
+  }
+
+  #GRNewsletter-{{ section.id }} .gr-newsletter__button:hover {
+    color: {{ section.settings.button_hover_text }};
+    background-color: {{ section.settings.button_hover_background }};
+    border-color: {{ section.settings.button_hover_background }};
+  }
+
+  @media screen and (max-width: 749px) {
+    #GRNewsletter-{{ section.id }} {
+      padding-top: {{ section.settings.mobile_padding_top }}px;
+      padding-bottom: {{ section.settings.mobile_padding_bottom }}px;
+    }
+
+    #GRNewsletter-{{ section.id }} .gr-newsletter__heading {
+      font-size: {{ section.settings.mobile_heading_size }}px;
+    }
+  }
+{% endstyle %}
+
+{% stylesheet %}
+  .gr-newsletter {
+    width: 100%;
+  }
+
+  .gr-newsletter__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(420px, 0.85fr);
+    align-items: end;
+    gap: 70px;
+  }
+
+  .gr-newsletter__content,
+  .gr-newsletter__form-wrap {
+    min-width: 0;
+  }
+
+  .gr-newsletter__eyebrow {
+    margin: 0 0 14px;
+    color: inherit;
+    font-size: 12px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: 0.14em;
+    opacity: 0.7;
+    text-transform: uppercase;
+  }
+
+  .gr-newsletter__heading {
+    margin: 0;
+    color: inherit;
+    font-weight: 900;
+    line-height: 0.92;
+    letter-spacing: -0.04em;
+    text-transform: uppercase;
+  }
+
+  .gr-newsletter__description {
+    margin: 20px 0 0;
+    color: inherit;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  .gr-newsletter__form {
+    margin: 0;
+  }
+
+  .gr-newsletter__fields {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .gr-newsletter__input {
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: 0 20px;
+    border: 2px solid;
+    border-right: 0;
+    border-radius: 0;
+    box-shadow: none;
+    font: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    outline: none;
+  }
+
+  .gr-newsletter__input:focus {
+    outline: 2px solid currentColor;
+    outline-offset: -5px;
+  }
+
+  .gr-newsletter__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    min-width: 170px;
+    padding: 0 24px;
+    border: 2px solid;
+    border-radius: 0;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition:
+      color 180ms ease,
+      background-color 180ms ease,
+      border-color 180ms ease;
+  }
+
+  .gr-newsletter__message {
+    margin: 14px 0 0;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.4;
+  }
+
+  .gr-newsletter__message--success {
+    color: inherit;
+  }
+
+  .gr-newsletter__message--error {
+    color: inherit;
+  }
+
+  .gr-newsletter__message--error ul {
+    margin: 0;
+    padding-left: 18px;
+  }
+
+  .gr-newsletter__small-print {
+    margin: 12px 0 0;
+    color: inherit;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.4;
+    opacity: 0.55;
+  }
+
+  @media screen and (max-width: 989px) {
+    .gr-newsletter__inner {
+      grid-template-columns: 1fr;
+      align-items: start;
+      gap: 34px;
+    }
+
+    .gr-newsletter__description {
+      max-width: 650px;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .gr-newsletter__inner {
+      gap: 28px;
+    }
+
+    .gr-newsletter__description {
+      margin-top: 16px;
+    }
+
+    .gr-newsletter__fields {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .gr-newsletter__input {
+      border-right: 2px solid;
+    }
+
+    .gr-newsletter__button {
+      width: 100%;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gr-newsletter__button {
+      transition: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "GR newsletter",
+  "tag": "section",
+  "class": "section-gr-newsletter",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Small heading",
+      "default": "Get Real Board Shop"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Join the real ones."
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Get first access to new drops, shop events, giveaways and everything happening at Get Real."
+    },
+    {
+      "type": "text",
+      "id": "placeholder",
+      "label": "Email placeholder",
+      "default": "Enter your email"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button wording",
+      "default": "Join the crew"
+    },
+    {
+      "type": "text",
+      "id": "success_message",
+      "label": "Success message",
+      "default": "You're officially one of the real ones."
+    },
+    {
+      "type": "text",
+      "id": "small_print",
+      "label": "Small print",
+      "default": "No spam. Just drops, events and shop news."
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 32,
+      "max": 84,
+      "step": 2,
+      "unit": "px",
+      "label": "Desktop heading size",
+      "default": 58
+    },
+    {
+      "type": "range",
+      "id": "mobile_heading_size",
+      "min": 28,
+      "max": 54,
+      "step": 2,
+      "unit": "px",
+      "label": "Mobile heading size",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "heading_width",
+      "min": 320,
+      "max": 800,
+      "step": 20,
+      "unit": "px",
+      "label": "Heading width",
+      "default": 620
+    },
+    {
+      "type": "range",
+      "id": "description_size",
+      "min": 13,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "label": "Description size",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "description_width",
+      "min": 300,
+      "max": 720,
+      "step": 20,
+      "unit": "px",
+      "label": "Description width",
+      "default": 560
+    },
+    {
+      "type": "range",
+      "id": "description_opacity",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Description brightness",
+      "default": 75
+    },
+    {
+      "type": "header",
+      "content": "Form"
+    },
+    {
+      "type": "range",
+      "id": "form_height",
+      "min": 48,
+      "max": 76,
+      "step": 2,
+      "unit": "px",
+      "label": "Form height",
+      "default": 60
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "field_background",
+      "label": "Email field background",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "field_text_color",
+      "label": "Email field text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "field_border_color",
+      "label": "Email field border",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_background",
+      "label": "Button background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_background",
+      "label": "Button hover background",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_text",
+      "label": "Button hover text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 24,
+      "max": 140,
+      "step": 4,
+      "unit": "px",
+      "label": "Desktop top padding",
+      "default": 72
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 24,
+      "max": 140,
+      "step": 4,
+      "unit": "px",
+      "label": "Desktop bottom padding",
+      "default": 72
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_top",
+      "min": 20,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Mobile top padding",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_bottom",
+      "min": 20,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Mobile bottom padding",
+      "default": 48
+    }
+  ],
+  "presets": [
+    {
+      "name": "GR newsletter"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,34 @@
+{
+  "sections": {
+    "board_builder": {
+      "type": "get-real-board-builder",
+      "settings": {
+        "eyebrow": "Get Real Setup Builder",
+        "heading": "Build my board.",
+        "description": "Choose every part of your setup one step at a time. We'll keep your full build and total visible as you go.",
+        "heading_size": 58,
+        "mobile_heading_size": 40,
+        "products_per_step": 16,
+        "desktop_columns": 3,
+        "mobile_columns": "2",
+        "truck_quantity": "2",
+        "background_color": "#ffffff",
+        "text_color": "#111111",
+        "muted_text_color": "#666666",
+        "card_background": "#ffffff",
+        "card_border_color": "#dedede",
+        "summary_background": "#111111",
+        "summary_text_color": "#ffffff",
+        "accent_color": "#ff9d00",
+        "button_text_color": "#111111",
+        "padding_top": 52,
+        "padding_bottom": 72,
+        "mobile_padding_top": 40,
+        "mobile_padding_bottom": 48
+      }
+    }
+  },
+  "order": [
+    "board_builder"
+  ]
+}
