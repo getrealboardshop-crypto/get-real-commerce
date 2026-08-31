@@ -13,6 +13,7 @@
   data-product-handle="{{ card_product.handle }}"
   data-product-url="{{ card_product.url }}"
   data-vendor="{{ card_product.vendor | escape }}"
+  data-product-tags="{{ card_product.tags | join: ',' | downcase | escape }}"
   data-variant-id="{{ builder_variant.id }}"
   data-variant-title="{{ builder_variant.title | escape }}"
   data-price="{{ builder_variant.price }}"
@@ -47,9 +48,7 @@
       {{ 'product-1' | placeholder_svg_tag: 'gr-builder-product__placeholder' }}
     {% endif %}
 
-    {% unless builder_variant.available %}
-      <span class="gr-builder-product__badge">Sold out</span>
-    {% endunless %}
+    <span class="gr-builder-product__profile-badge" data-builder-profile-badge hidden></span>
   </button>
 
   <div class="gr-builder-product__body">
@@ -91,17 +90,17 @@
           data-builder-variant-select
         >
           {% for variant in card_product.variants %}
+            {% if variant.available %}
             <option
               value="{{ variant.id }}"
               data-price="{{ variant.price }}"
               data-variant-title="{{ variant.title | escape }}"
               data-available="{{ variant.available }}"
               {% if variant.id == builder_variant.id %}selected{% endif %}
-              {% unless variant.available %}disabled{% endunless %}
             >
               {{ variant.title | escape }} — {{ variant.price | money }}
-              {% unless variant.available %} — Sold out{% endunless %}
             </option>
+            {% endif %}
           {% endfor %}
         </select>
       </div>

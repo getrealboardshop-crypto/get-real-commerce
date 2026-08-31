@@ -1445,6 +1445,19 @@
         "info": "t:settings_schema.cart.settings.cart_drawer.collection.info"
       },
       {
+        "type": "collection",
+        "id": "cart_addons_collection",
+        "label": "Fallback cart add-ons collection",
+        "info": "Used when the cart does not contain a deck, trucks, or wheels. Choose an inexpensive accessories collection."
+      },
+      {
+        "type": "checkbox",
+        "id": "free_grip_offer_enabled",
+        "label": "Show Free Grip With Any Deck offer",
+        "info": "Turn this on only after creating the matching automatic Buy X Get Y discount in Shopify.",
+        "default": false
+      },
+      {
         "type": "color_scheme",
         "id": "cart_color_scheme",
         "label": "t:sections.all.colors.label",

@@ -55,22 +55,29 @@
       <div class="gr-builder-launch__intro">
         <p class="gr-builder__eyebrow">Get Real Setup Builder</p>
         <h1 class="gr-builder-launch__heading">How do you want to build?</h1>
-        <p class="gr-builder-launch__copy">Go straight to the parts or let us point you toward the right deck size first.</p>
+        <p class="gr-builder-launch__copy">Choose a starting point. You can change any part before adding the setup to your cart.</p>
       </div>
 
       <div class="gr-builder-launch__paths">
-        <button class="gr-builder-launch__path" type="button" data-builder-direct>
-          <span class="gr-builder-launch__path-kicker">Fast track</span>
-          <strong>I know what I want</strong>
-          <span>Start with decks and build it step by step.</span>
-          <b>Start building →</b>
+        <button class="gr-builder-launch__path gr-builder-launch__path--value" type="button" data-builder-profile="value">
+          <span class="gr-builder-launch__path-kicker">Lowest setup price</span>
+          <strong>Best Value</strong>
+          <span>Start with the $49.95 Get Real deck and our best-priced in-stock parts.</span>
+          <b>Build for value →</b>
         </button>
 
-        <button class="gr-builder-launch__path gr-builder-launch__path--accent" type="button" data-builder-guided-open>
-          <span class="gr-builder-launch__path-kicker">First setup?</span>
-          <strong>Not sure where to start?</strong>
-          <span>Answer three quick questions and get the same kind of guidance we’d give you in the shop.</span>
-          <b>Help me choose →</b>
+        <button class="gr-builder-launch__path gr-builder-launch__path--accent" type="button" data-builder-profile="shop">
+          <span class="gr-builder-launch__path-kicker">Recommended by Get Real</span>
+          <strong>Shop Pick</strong>
+          <span>Answer three quick questions and we’ll highlight the setup we would recommend in the shop.</span>
+          <b>Get our recommendation →</b>
+        </button>
+
+        <button class="gr-builder-launch__path" type="button" data-builder-profile="scratch">
+          <span class="gr-builder-launch__path-kicker">Your setup, your call</span>
+          <strong>Build From Scratch</strong>
+          <span>Browse every in-stock option and choose each part yourself.</span>
+          <b>Start building →</b>
         </button>
       </div>
 
@@ -240,6 +247,7 @@
           <div class="gr-builder-products" data-builder-products>
             {% if decks_collection != blank and decks_collection.products_count > 0 %}
               {% for product in decks_collection.products limit: section.settings.products_per_step %}
+                {% unless product.available %}{% continue %}{% endunless %}
                 {% render 'gr-builder-product-card',
                   card_product: product,
                   step_key: 'deck',
@@ -301,6 +309,7 @@
           <div class="gr-builder-products" data-builder-products>
             {% if trucks_collection != blank and trucks_collection.products_count > 0 %}
               {% for product in trucks_collection.products limit: section.settings.products_per_step %}
+                {% unless product.available %}{% continue %}{% endunless %}
                 {% render 'gr-builder-product-card',
                   card_product: product,
                   step_key: 'trucks',
@@ -357,6 +366,7 @@
           <div class="gr-builder-products" data-builder-products>
             {% if wheels_collection != blank and wheels_collection.products_count > 0 %}
               {% for product in wheels_collection.products limit: section.settings.products_per_step %}
+                {% unless product.available %}{% continue %}{% endunless %}
                 {% render 'gr-builder-product-card',
                   card_product: product,
                   step_key: 'wheels',
@@ -413,6 +423,7 @@
           <div class="gr-builder-products" data-builder-products>
             {% if bearings_collection != blank and bearings_collection.products_count > 0 %}
               {% for product in bearings_collection.products limit: section.settings.products_per_step %}
+                {% unless product.available %}{% continue %}{% endunless %}
                 {% render 'gr-builder-product-card',
                   card_product: product,
                   step_key: 'bearings',
@@ -469,6 +480,7 @@
           <div class="gr-builder-products" data-builder-products>
             {% if grip_collection != blank and grip_collection.products_count > 0 %}
               {% for product in grip_collection.products limit: section.settings.products_per_step %}
+                {% unless product.available %}{% continue %}{% endunless %}
                 {% render 'gr-builder-product-card',
                   card_product: product,
                   step_key: 'grip',
@@ -525,6 +537,7 @@
           <div class="gr-builder-products" data-builder-products>
             {% if hardware_collection != blank and hardware_collection.products_count > 0 %}
               {% for product in hardware_collection.products limit: section.settings.products_per_step %}
+                {% unless product.available %}{% continue %}{% endunless %}
                 {% render 'gr-builder-product-card',
                   card_product: product,
                   step_key: 'hardware',
@@ -644,6 +657,19 @@
             Truck total reflects a quantity of
             {{ section.settings.truck_quantity }}.
           </p>
+
+          <div class="gr-builder-summary__rewards">
+            <strong>Complete setup reward</strong>
+            <span>Free shipping + free Get Real stickers</span>
+          </div>
+
+          <label class="gr-builder-summary__assembly">
+            <input type="checkbox" data-builder-assembly>
+            <span>
+              <strong>Request assembly + grip application</strong>
+              <small>We only assemble and apply grip when you request it.</small>
+            </span>
+          </label>
 
           <button
             class="gr-builder-summary__add"
@@ -1047,6 +1073,22 @@
     text-transform: uppercase;
   }
 
+  .gr-builder-product__profile-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 3;
+    padding: 7px 9px;
+    color: #111;
+    background: var(--gr-builder-accent);
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+
+  .gr-builder-product.is-profile-pick { order: -1; border-color: var(--gr-builder-accent); }
+
   .gr-builder-product__body {
     padding: 15px;
   }
@@ -1343,6 +1385,25 @@
     font-size: 10px;
     line-height: 1.4;
   }
+
+  .gr-builder-summary__rewards {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 16px 0;
+    padding: 14px;
+    color: #111;
+    background: var(--gr-builder-accent);
+    text-transform: uppercase;
+  }
+
+  .gr-builder-summary__rewards strong { font-size: 11px; letter-spacing: .08em; }
+  .gr-builder-summary__rewards span { font-size: 13px; font-weight: 900; }
+  .gr-builder-summary__assembly { display:flex;gap:11px;align-items:flex-start;margin:0 0 16px;cursor:pointer; }
+  .gr-builder-summary__assembly input { width:18px;height:18px;margin:2px 0 0;accent-color:var(--gr-builder-accent); }
+  .gr-builder-summary__assembly span { display:flex;flex-direction:column;gap:4px; }
+  .gr-builder-summary__assembly strong { color:inherit;font-size:11px;text-transform:uppercase; }
+  .gr-builder-summary__assembly small { color:rgba(255,255,255,.66);font-size:10px;line-height:1.35; }
 
   .gr-builder-summary__add {
     display: flex;
@@ -1761,8 +1822,8 @@
   .gr-builder-launch__intro{max-width:830px;margin-bottom:34px}
   .gr-builder-launch__heading{margin:0;font-size:clamp(42px,6vw,76px);font-weight:900;line-height:.94;letter-spacing:-.045em;text-transform:uppercase}
   .gr-builder-launch__copy{max-width:690px;margin:18px 0 0;color:var(--gr-builder-muted);font-size:17px;line-height:1.5}
-  .gr-builder-launch__paths{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
-  .gr-builder-launch__path{min-height:310px;padding:34px;text-align:left;color:var(--gr-builder-text);background:var(--gr-builder-card);border:1px solid var(--gr-builder-card-border);font:inherit;cursor:pointer;transition:transform .18s ease,border-color .18s ease}
+  .gr-builder-launch__paths{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+  .gr-builder-launch__path{min-height:310px;padding:28px;text-align:left;color:var(--gr-builder-text);background:var(--gr-builder-card);border:1px solid var(--gr-builder-card-border);font:inherit;cursor:pointer;transition:transform .18s ease,border-color .18s ease}
   .gr-builder-launch__path:hover{transform:translateY(-3px);border-color:var(--gr-builder-accent)}
   .gr-builder-launch__path--accent{color:#fff;background:#111;border-color:#111}
   .gr-builder-launch__path-kicker{display:block;margin-bottom:72px;color:var(--gr-builder-accent);font-size:11px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
@@ -1864,6 +1925,7 @@
   const addLabel=section.querySelector('[data-builder-add-label]');
   const totalEl=section.querySelector('[data-builder-total]');
   const message=section.querySelector('[data-builder-message]');
+  const assemblyRequest=section.querySelector('[data-builder-assembly]');
   const truckGuide=section.querySelector('[data-truck-guide]');
   const modal=section.querySelector('[data-builder-modal]');
   const modalImage=section.querySelector('[data-builder-modal-image]');
@@ -1898,7 +1960,43 @@
     return String(n);
   };
 
-  const startApp=()=>{launch.hidden=true;app.hidden=false;showStep(0,false);window.scrollTo({top:section.getBoundingClientRect().top+window.scrollY-12,behavior:'smooth'});};
+  let buildProfile='scratch';
+  const clearProfilePicks=()=>section.querySelectorAll('[data-builder-product]').forEach(card=>{
+    card.classList.remove('is-profile-pick');
+    const badge=card.querySelector('[data-builder-profile-badge]');
+    if(badge){badge.hidden=true;badge.textContent='';}
+  });
+  const markProfilePick=(card,label)=>{
+    if(!card)return;
+    card.classList.add('is-profile-pick');
+    const badge=card.querySelector('[data-builder-profile-badge]');
+    if(badge){badge.textContent=label;badge.hidden=false;}
+  };
+  const lowestPricedCard=cards=>cards.reduce((best,card)=>{
+    const select=card.querySelector('[data-builder-variant-select]');
+    const prices=select?[...select.options].filter(option=>!option.disabled).map(option=>Number(option.dataset.price)):[Number(card.dataset.price)];
+    const price=Math.min(...prices.filter(Number.isFinite));
+    return !best||price<best.price?{card,price}:best;
+  },null)?.card;
+  const applyBuildProfile=profile=>{
+    buildProfile=profile||'scratch';
+    clearProfilePicks();
+    if(buildProfile==='scratch')return;
+    const profileLabel=buildProfile==='value'?'Best value':'Shop pick';
+    steps.forEach((step,index)=>{
+      const cards=[...step.querySelectorAll('[data-builder-product]')].filter(card=>card.dataset.available==='true');
+      let pick=null;
+      if(buildProfile==='value'&&index===0){
+        pick=cards.find(card=>card.dataset.productHandle==='get-real-jazz-solo-deck'||/get real jazz solo/i.test(card.dataset.productTitle));
+      }
+      if(buildProfile==='shop'){
+        const shopTerms=[/get real|real team|baker/i,/slappy|independent/i,/spitfire formula four/i,/bones reds|bronson g2/i,/mob grip|pepper g5/i,/independent genuine parts/i];
+        pick=cards.find(card=>shopTerms[index]?.test(`${card.dataset.vendor} ${card.dataset.productTitle} ${card.dataset.productTags}`));
+      }
+      markProfilePick(pick||lowestPricedCard(cards),profileLabel);
+    });
+  };
+  const startApp=(profile='scratch')=>{launch.hidden=true;app.hidden=false;applyBuildProfile(profile);showStep(0,false);window.scrollTo({top:section.getBoundingClientRect().top+window.scrollY-12,behavior:'smooth'});};
   const guideValue=name=>section.querySelector(`input[name="${name}-{{ section.id }}"]:checked`)?.value||'';
   const recommendationData=()=>{
     const shoe=section.querySelector('[data-guide-shoe]').value;
@@ -1967,7 +2065,7 @@
 
   const beginRecommendedBuild=(width,browseAll=false)=>{
     recommendationScreen.hidden=true;
-    startApp();
+    startApp('shop');
     if(!browseAll)applyGuidedRecommendation(width);
   };
 
@@ -1995,6 +2093,8 @@
     section.querySelectorAll('[data-builder-product][data-step-key="trucks"]').forEach(card=>{
       const size=recommended(card),select=card.querySelector('[data-builder-variant-select]'),badge=card.querySelector('[data-builder-recommendation]');
       if(badge){badge.textContent=size?`${size} recommended`:'';badge.classList.toggle('is-visible',!!size);}
+      card.hidden=false;
+      card.dataset.compatible='true';
       if(!size)return;
       const brand=brandOf(card);
       if(!labels.has(brand))labels.set(brand,`${brand[0].toUpperCase()+brand.slice(1)} ${size}`);
@@ -2002,10 +2102,14 @@
         [...select.options].forEach(option=>{
           const base=option.dataset.baseLabel||option.textContent.replace(/\s+\(Recommended\)$/i,'');
           option.dataset.baseLabel=base;
-          option.textContent=optionMatches(option,size)?`${base} (Recommended)`:base;
+          const matches=optionMatches(option,size);
+          option.disabled=!matches;
+          option.textContent=matches?`${base} (Compatible)`:base;
         });
         const match=[...select.options].find(o=>!o.disabled&&optionMatches(o,size));
         if(match){select.value=match.value;select.dispatchEvent(new Event('change',{bubbles:true}));}
+        card.hidden=!match;
+        card.dataset.compatible=match?'true':'false';
       }
     });
     if(truckGuide&&widthEl&&sizesEl){
@@ -2170,11 +2274,17 @@
 
   section.querySelectorAll('[data-builder-search]').forEach(input=>input.addEventListener('input',()=>{
     const q=input.value.trim().toLowerCase();
-    input.closest('[data-builder-step]').querySelectorAll('[data-builder-product]').forEach(card=>{card.hidden=q!==''&&!(card.dataset.searchText||'').includes(q);});
+    input.closest('[data-builder-step]').querySelectorAll('[data-builder-product]').forEach(card=>{
+      const incompatible=card.dataset.stepKey==='trucks'&&card.dataset.compatible==='false';
+      card.hidden=incompatible||(q!==''&&!(card.dataset.searchText||'').includes(q));
+    });
   }));
 
-  section.querySelector('[data-builder-direct]').addEventListener('click',startApp);
-  section.querySelector('[data-builder-guided-open]').addEventListener('click',()=>{paths.hidden=true;guide.hidden=false;});
+  section.querySelectorAll('[data-builder-profile]').forEach(button=>button.addEventListener('click',()=>{
+    const profile=button.dataset.builderProfile;
+    if(profile==='shop'){paths.hidden=true;guide.hidden=false;return;}
+    startApp(profile);
+  }));
   section.querySelector('[data-builder-guide-cancel]').addEventListener('click',()=>{guide.hidden=true;paths.hidden=false;});
   section.querySelector('[data-builder-guide-submit]').addEventListener('click',showRecommendation);
   section.querySelector('[data-builder-recommendation-back]').addEventListener('click',()=>{recommendationScreen.hidden=true;guide.hidden=false;});
@@ -2192,7 +2302,16 @@
   addAll.addEventListener('click',async()=>{
     if(adding||count()!==keys.length)return;
     adding=true;addAll.disabled=true;addLabel.textContent='Adding setup...';message.textContent='';
-    const items=keys.map(key=>({id:selections[key].variantId,quantity:selections[key].quantity,properties:{'_Get Real Build':'Complete Setup'}}));
+    const requestedAssembly=assemblyRequest?.checked===true;
+    const items=keys.map(key=>({
+      id:selections[key].variantId,
+      quantity:selections[key].quantity,
+      properties:{
+        '_Get Real Build':'Complete Setup',
+        '_Free Get Real Stickers':'Included',
+        ...(requestedAssembly?{'Assembly + grip application':'Requested'}:{})
+      }
+    }));
     try{
       const root=window.Shopify?.routes?.root||'/';
       const response=await fetch(`${root}cart/add.js`,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({items})});

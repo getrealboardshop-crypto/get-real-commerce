@@ -10,11 +10,68 @@
 
 <script src="{{ 'cart.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'quantity-popover.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
+
+{%- liquid
+  assign gr_shipping_threshold = 10000
+  assign gr_shipping_remaining = gr_shipping_threshold | minus: cart.total_price
+  assign gr_has_deck = false
+  assign gr_has_grip = false
+  assign gr_has_wheels = false
+  assign gr_has_trucks = false
+
+  for item in cart.items
+    assign gr_type = item.product.type | downcase
+    assign gr_title = item.product.title | downcase
+    assign gr_collection_handles = item.product.collections | map: 'handle'
+    if gr_type contains 'deck' or gr_collection_handles contains 'decks'
+      assign gr_has_deck = true
+    endif
+    if gr_type contains 'grip' or gr_title contains 'grip tape' or gr_collection_handles contains 'grip-tape'
+      assign gr_has_grip = true
+    endif
+    if gr_type contains 'wheel' or gr_collection_handles contains 'wheels'
+      assign gr_has_wheels = true
+    endif
+    if gr_type contains 'truck' or gr_collection_handles contains 'trucks'
+      assign gr_has_trucks = true
+    endif
+  endfor
+
+  if gr_has_deck and gr_has_grip == false
+    assign gr_addon_collection = collections['grip-tape']
+    assign gr_addon_heading = 'Add grip to your deck'
+  elsif gr_has_wheels
+    assign gr_addon_collection = collections['bearings']
+    assign gr_addon_heading = 'Finish the wheel setup'
+  elsif gr_has_trucks
+    assign gr_addon_collection = collections['hardware']
+    assign gr_addon_heading = 'Don’t forget the hardware'
+  else
+    assign gr_addon_collection = settings.cart_addons_collection
+    assign gr_addon_heading = 'Useful add-ons'
+  endif
+-%}
 
 <style>
   .drawer {
     visibility: hidden;
   }
+  .gr-cart-progress{margin:0 20px 16px;padding:14px;background:#111;color:#fff}
+  .gr-cart-progress__copy{display:flex;justify-content:space-between;gap:16px;font-size:11px;font-weight:900;letter-spacing:.05em;text-transform:uppercase}
+  .gr-cart-progress__track{height:5px;margin-top:10px;overflow:hidden;background:rgba(255,255,255,.25)}
+  .gr-cart-progress__fill{display:block;height:100%;background:#ff9d00}
+  .gr-cart-offer{margin:0 20px 14px;padding:12px 14px;background:#ff9d00;color:#111}
+  .gr-cart-offer strong,.gr-cart-offer span{display:block}.gr-cart-offer strong{font-size:12px;text-transform:uppercase}.gr-cart-offer span{margin-top:3px;font-size:11px;font-weight:700}
+  .gr-cart-addons{margin:0 20px 18px;padding-top:14px;border-top:1px solid rgba(18,18,18,.14)}
+  .gr-cart-addons__heading{margin:0 0 10px;font-size:12px;font-weight:900;text-transform:uppercase}
+  .gr-cart-addons__list{display:grid;gap:8px}
+  .gr-cart-addon{display:grid;grid-template-columns:58px minmax(0,1fr) auto;align-items:center;gap:10px;padding:8px;border:1px solid rgba(18,18,18,.14)}
+  .gr-cart-addon img{width:58px;height:58px;object-fit:contain;background:#f5f5f5}
+  .gr-cart-addon__info{min-width:0}.gr-cart-addon__info strong,.gr-cart-addon__info span{display:block}.gr-cart-addon__info strong{font-size:11px;line-height:1.25}.gr-cart-addon__info span{margin-top:3px;font-size:11px}
+  .gr-cart-addon button{min-width:58px;padding:9px 8px;color:#fff;background:#111;border:0;font:inherit;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer}
+  .gr-cart-assurance{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 0}
+  .gr-cart-assurance div{padding:10px;background:rgba(18,18,18,.05)}.gr-cart-assurance strong,.gr-cart-assurance span{display:block}.gr-cart-assurance strong{font-size:10px;text-transform:uppercase}.gr-cart-assurance span{margin-top:3px;font-size:10px;line-height:1.35}.gr-cart-assurance a{color:inherit;text-decoration:underline}
 </style>
 
 <cart-drawer class="drawer{% if cart == empty %} is-empty{% endif %}">
@@ -74,6 +131,29 @@
           </span>
         </button>
       </div>
+      {%- if cart != empty -%}
+        <div class="gr-cart-progress">
+          <div class="gr-cart-progress__copy">
+            {%- if gr_shipping_remaining > 0 -%}
+              <span>{{ gr_shipping_remaining | money }} away from free shipping</span>
+              <span>$100 goal</span>
+            {%- else -%}
+              <span>You unlocked free shipping</span>
+              <span>✓</span>
+            {%- endif -%}
+          </div>
+          <div class="gr-cart-progress__track" aria-hidden="true">
+            {%- assign gr_progress = cart.total_price | times: 100 | divided_by: gr_shipping_threshold | at_most: 100 -%}
+            <span class="gr-cart-progress__fill" style="width:{{ gr_progress }}%"></span>
+          </div>
+        </div>
+        {%- if settings.free_grip_offer_enabled and gr_has_deck and gr_has_grip == false -%}
+          <div class="gr-cart-offer">
+            <strong>Free grip with your deck</strong>
+            <span>Choose an in-stock sheet below. The automatic discount appears in your cart.</span>
+          </div>
+        {%- endif -%}
+      {%- endif -%}
       <cart-drawer-items
         view-event-payload="{{ cart | standard_event_data: 'view', context: 'dialog' | escape }}"
         view-event-trigger="manual"
@@ -487,6 +567,41 @@
           <div id="CartDrawer-CartErrors" role="alert"></div>
         </form>
       </cart-drawer-items>
+      {%- if cart != empty and gr_addon_collection != blank -%}
+        <div class="gr-cart-addons">
+          <h3 class="gr-cart-addons__heading">{{ gr_addon_heading }}</h3>
+          <div class="gr-cart-addons__list">
+            {%- assign gr_addons_shown = 0 -%}
+            {%- for addon in gr_addon_collection.products -%}
+              {%- if addon.available and gr_addons_shown < 3 -%}
+                {%- assign addon_variant = addon.selected_or_first_available_variant -%}
+                <div class="gr-cart-addon">
+                  {%- if addon.featured_image -%}
+                    {{ addon.featured_image | image_url: width: 116 | image_tag: loading: 'lazy', alt: addon.title }}
+                  {%- else -%}
+                    {{ 'product-1' | placeholder_svg_tag }}
+                  {%- endif -%}
+                  <div class="gr-cart-addon__info">
+                    <strong>{{ addon.title | escape }}</strong>
+                    <span>{{ addon_variant.price | money }}</span>
+                  </div>
+                  <product-form data-hide-errors="false">
+                    {%- form 'product', addon -%}
+                      <input type="hidden" name="id" value="{{ addon_variant.id }}">
+                      <input type="hidden" name="quantity" value="1">
+                      <button type="submit" name="add">
+                        <span>Add</span>
+                        {%- render 'loading-spinner' -%}
+                      </button>
+                    {%- endform -%}
+                  </product-form>
+                </div>
+                {%- assign gr_addons_shown = gr_addons_shown | plus: 1 -%}
+              {%- endif -%}
+            {%- endfor -%}
+          </div>
+        </div>
+      {%- endif -%}
       <div class="drawer__footer">
         {%- if settings.show_cart_note -%}
           <details id="Details-CartDrawer">
@@ -570,6 +685,16 @@
               {%- endif -%}
             {%- endif -%}
           </small>
+          <div class="gr-cart-assurance">
+            <div>
+              <strong>Fast shop shipping</strong>
+              <span>Usually ships the same day or next business morning.</span>
+            </div>
+            <div>
+              <strong>30-day returns</strong>
+              <span>Unused gear can be returned within 30 days. <a href="{{ shop.refund_policy.url }}">Details</a></span>
+            </div>
+          </div>
         </div>
 
         <!-- CTAs -->
