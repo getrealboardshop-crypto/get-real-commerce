@@ -19,7 +19,9 @@
     assign has_second_image = true
   endif
 
-  if card_product.tags contains staff_pick_tag
+  if card_product.handle == 'get-real-jazz-solo-deck'
+    assign custom_badge = 'Best value'
+  elsif card_product.tags contains staff_pick_tag
     assign custom_badge = staff_pick_label
   elsif card_product.tags contains limited_tag
     assign custom_badge = limited_label
@@ -162,5 +164,8 @@
         </s>
       {% endif %}
     </div>
+    {% if card_product.handle == 'get-real-jazz-solo-deck' %}
+      <p class="gr-product-card__value-note">Get Real shop deck · Start your setup here</p>
+    {% endif %}
   </div>
 </article>
